@@ -1,9 +1,5 @@
 //TODO:
-// need to sync currentPlayer
-// button color not correct
-// need to correct the button color update
 // need to assure initial button lockout
-
 class Game {
 
   static currentPlayer: Player
