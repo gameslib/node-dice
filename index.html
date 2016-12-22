@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Dice Game</title>
+        <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+        <link rel="stylesheet" href="styles/styles.css">
+    </head>
+
+    <body>
+        <audio id="cluckSound" src="media/Cluck.mp3" preload="auto"></audio>
+        <audio id="dohhSound" src="media/Do_h.mp3" preload="auto"></audio>
+        <audio id="heheSound" src="media/Hehe.mp3" preload="auto"></audio>
+        <audio id="rollSound" src="media/RollDice.mp3" preload="auto"></audio>
+        <audio id="selectSound" src="media/Select.mp3" preload="auto"></audio>
+        <audio id="woohooSound" src="media/Woohoo.mp3" preload="auto"></audio>
+        <audio id="noooSound" src="media/Nooo.mp3" preload="auto"></audio>
+        <audio id="YaSilkWearinSound" src="media/YaSilkWearin.mp3" preload="auto"></audio>
+        <nav>
+            <ul class='shaddowed'>
+                <li>
+                    <a data-id='exit_menu' class='shaddowed'>exit</a>
+                </li>
+                <li>
+                    <a id='help_menu' class='shaddowed'>help</a>
+                </li>
+                <li>
+                    <a id='scores_menu' data-id='scores_menu' class='shaddowed'>scores</a>
+                </li>
+                <li>
+                    <a id='options_menu' data-id='options_menu' class='shaddowed'>options</a>
+                </li>
+            </ul>
+        </nav>
+        <button id="player1" data-id='player1' class='player'>.</button>
+        <button id="player2" data-id='player2' class='player'>.</button>
+        <button id="rollButton" data-id='rollButton' class="shaddowed">Roll Dice</button>
+        <button id="player3" data-id='player3' class='player'>.</button>
+        <button id="player4" data-id='player4' class='player'>.</button>
+       <dice-element>
+            <div id='dice_Container'>
+                <canvas class="die" data-id='0' id='die0' height="60" width="60"></canvas>
+                <canvas class="die" data-id='1' id='die1' height="60" width="60"></canvas>
+                <canvas class="die" data-id='2' id='die2' height="60" width="60"></canvas>
+                <canvas class="die" data-id='3' id='die3' height="60" width="60"></canvas>
+                <canvas class="die" data-id='4' id='die4' height="60" width="60"></canvas>
+            </div>
+        </dice-element>
+        <div id="main">
+            <div id="leftColumn">
+                <div id="ones" data-id='0' class="shaddowed score-container">
+                    <div data-id='0' class="score-label">
+                    </div>
+                    <div data-id='0' class="score-value"></div>
+                </div>
+                <div id="twos" data-id='1' class="shaddowed score-container">
+                    <div data-id='1' class="score-label"></div>
+                    <div data-id='1' class="score-value"></div>
+                </div>
+                <div id="threes" data-id='2' class="shaddowed score-container">
+                    <div data-id='2' class="score-label"></div>
+                    <div data-id='2' class="score-value"></div>
+                </div>
+                <div id="fours" data-id='3' class="shaddowed score-container">
+                    <div data-id='3' class="score-label"></div>
+                    <div data-id='3' class="score-value"></div>
+                </div>
+                <div id="fives" data-id='4' class="shaddowed score-container">
+                    <div data-id='4' class="score-label"></div>
+                    <div data-id='4' class="score-value"></div>
+                </div>
+                <div id="sixes" data-id='5' class="shaddowed score-container">
+                    <div data-id='5' class="score-label">sixes
+                    </div>
+                    <div data-id='5' class="score-value">
+                    </div>
+                </div>
+                <div class="score-container">
+                    <div class="score-Lable" id="leftScore">^ total = 0</div>
+                    <div class='info'>____________________________
+                      </div>
+                </div>
+            <div class='info' id='info'>...</div>
+          </div>
+            <div id="rightColumn">
+                <div id="three_kind" data-id='6' class="shaddowed score-container">
+                    <div data-id='6' class="score-label"></div>
+                    <div data-id='6' class="score-value"></div>
+                </div>
+                <div id="four_kind" data-id='7' class="shaddowed score-container">
+                    <div data-id='7' class="score-label"></div>
+                    <div data-id='7' class="score-value"></div>
+                </div>
+                <div id="small_straight" data-id='8' class="shaddowed score-container">
+                    <div data-id='8' class="score-label"></div>
+                    <div data-id='8' class="score-value"></div>
+                </div>
+                <div id="large_straight" data-id='9' class="shaddowed score-container">
+                    <div data-id='9' class="score-label"></div>
+                    <div data-id='9' class="score-value"></div>
+                </div>
+                <div id="house" data-id='10' class="shaddowed score-container">
+                    <div data-id='10' class="score-label"></div>
+                    <div data-id='10' class="score-value"></div>
+                </div>
+                <div id="five_kind" data-id='11' class="shaddowed score-container">
+                    <div data-id='11' class="score-label">Yatzy</div>
+                    <div data-id='11' class="score-value"></div>
+                </div>
+                <div id="chance" data-id='12' class="shaddowed score-container">
+                    <div data-id='12' class="score-label">Chance</div>
+                    <div data-id='12' class="score-value"></div>
+                </div>
+            </div>
+        </div>
+
+        <dialog id="help-dialog">
+            <h1>Cutthroat Dice Help</h1>
+            <div class="container">
+                <h3>Cutthroat [adjective]</h3>
+                <pre>
+-'used to describe a situation in which people compete with
+each other in an unpleasant and often cruel and unfair way'.
+Cutthroat business practices are generally intended to drive
+a competitor out of business.</pre>
+                <h3>Cutthroat Dice</h3>
+                <pre>
+Cutthroat Dice ... a dice game where two or more
+players use the same score card, and where each player
+must fend for themselves by stealing score-boxes from other
+players (when allowed). Example: If player 'A' scores
+three-fives, and player 'B' then rolls four-fives, player 'B'
+may steal the 'fives-score' from player 'A', thus eliminating
+player 'A's prior score.
+The objective of Cutthroat is to generate the highest
+total score by any means.</pre>
+                <h2>HOW TO PLAY</h2>
+                <pre>
+1. Click the "Roll Dice" button to roll the dice.
+2. Lock dice that you want to keep by clicking on them.
+3. Click the Roll buttom again (3 rolls total).
+4. Register your score by clicking on a scoring-box.
+* The game can be played by up to four players.
+* Players take turns rolling five dice.
+* After each roll, the player chooses which dice to keep,
+  and which to re-roll.
+  A player may re-roll some or all of the dice, up to two times
+  on a turn (3 rolls total).
+* The player must then place a score (or zero) into any
+  available score-box during each turn.
+* A score is available to the player if it is displaying a
+  red number in a gray box.
+* The game ends when all score boxes are used.
+* The player with the highest score wins the game.</pre>
+                <h3>Scoring</h3>
+                <pre>
+Left-Section:
+   Ones: The sum of all dice showing the number 1.
+   Twos: The sum of all dice showing the number 2.
+   Threes: The sum of all dice showing the number 3.
+   Fours: The sum of all dice showing the number 4.
+   Fives: The sum of all dice showing the number 5.
+   Sixes: The sum of all dice showing the number 6.
+   Left-Bonus: If the total score from above is greater
+     than 62, the player with the most points in this section
+     will be rewarded an extra 35 bonus points.
+
+Right-Section:
+ Three of a Kind: At least three dice with the same number of dots.
+    Scores the sum of all dice.
+ Four of a Kind: At least four dice with the same number of dots.
+    Scores the sum of all dice.
+ Small Straight: 1-2-3-4-?, 2-3-4-5-? or 3-4-5-6-?.
+    Scores 30.
+ Large Straight: 2-3-4-5-6 or 1-2-3-4-5. Scores 40.
+ Full House: One pair and three of a kind,
+               e.g. 3-3-3-4-4. Scores 25.
+    Note: Five-of-a-kind is not accepted as a full house
+     (except when a Five-of-a-kind-Bonus is used, see below).
+ Chance: Any combination of dice. The score is simply the total
+        of all the dice. e.g. 1-5-4-3-3 scores 16.
+ Five-of-a-kind: All dice of the same value,
+   e.g. 1-1-1-1-1 or 3-3-3-3-3. Will always give you 50 points.
+   Five-of-a-kind-Bonus: If you get more than one Five-of-a-kind,
+   you get 100 extra bonus points for each. If you have not
+   scored in the Yatzy category (Yatzy = 0), you will not receive
+   a bonus. You may take a bonus by clicking any unused score
+   element. The value of the dice will be used to calculate the
+   actual score for the element selected + the 100 bonus.</pre>
+            </div>
+            <button id="close-help-dialog">Close</button>
+        </dialog>
+
+        <dialog id="options-dialog">
+            <h1>Options</h1>
+            <br>
+            <div class="squaredChkBox">
+                <input type="checkbox" id="soundsChkBox" name="soundsChkBox" checked />
+                <label for="soundsChkBox"></label>
+            </div>
+            <h2>Play Sound Effects</h2>
+            <button id="close-options-dialog">Close</button>
+        </dialog>
+
+        <dialog id="high-scores-dialog">
+            <h1>High Scores</h1>
+            <br>
+            <h2>Top Five High Scores</h2>
+            <pre id='scoresContent'></pre>
+            <button id="close-scores-dialog">Close</button>
+        </dialog>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="build/Modules.js" data-boot="app"></script>
+
+    </body>
+
+</html>
