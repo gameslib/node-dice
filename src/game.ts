@@ -1,5 +1,6 @@
 //TODO:
 // need to assure initial button lockout
+// winner not selected correctly?
 class Game {
 
   static currentPlayer: Player
