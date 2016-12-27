@@ -1,5 +1,5 @@
 class UI {
-//TODO:
+
   static scoreElements: ScoreElement[]
   static node: HTMLElement[]
 
@@ -36,18 +36,19 @@ class UI {
     App.playerElements[2] = document.getElementById('player3')
     App.playerElements[3] = document.getElementById('player4')
   }
+
   static resetScoreElements() {
     App.playerElements[0].textContent = '.'
     App.playerElements[0].style.color = 'black'
 
     App.playerElements[1].textContent = '.'
+    App.playerElements[1].style.color = 'black'
+
+    App.playerElements[2].textContent = '.'
     App.playerElements[2].style.color = 'black'
 
-    App.playerElements[1].textContent = '.'
-    App.playerElements[2].style.color = 'black'
-
-    App.playerElements[1].textContent = '.'
-    App.playerElements[2].style.color = 'black'
+    App.playerElements[3].textContent = '.'
+    App.playerElements[3].style.color = 'black'
   }
 
   static buildScoreElements(game: Game) {

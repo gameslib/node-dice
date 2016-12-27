@@ -34,7 +34,6 @@ socketServer.on('connection', function (client: any) {
 
   client.on('message', (message: any) => {
     var d = JSON.parse(message);
-    console.log('message: ' + d.name + ' data = ' + d.data.name)
     switch (d.name) {
       case 'loggedIn': // data = {'id': id,'name': person}
         numberOfPlayers = Object.keys(players).length
@@ -62,19 +61,21 @@ socketServer.on('connection', function (client: any) {
         d.data.currentPlayerIndex = currentPlayerIndex
         broadcastAll(client, 'resetTurn', d.data)
         break;
+      case 'gameOver': // data = { 'id': App.thisID }
+       currentPlayerIndex = 0
+        broadcastAll(client, 'setPlayers', players)
+        broadcastAll(client, 'resetGame', { currentPlayerIndex: 0 })
+        break;
       default:
         break;
     }
   })
 
   client.on('close', (message: any) => {
-    console.log('message: close  data = ' + client.id)
     delete players[client.id]
     numberOfPlayers = Object.keys(players).length
     broadcastAll(client, 'setPlayers', players)
-        console.log('broadcastAll setPlayers')
     setTimeout(() => {
-      console.log('broadcastAll resetGame')
       currentPlayerIndex = 0
       broadcastAll(client, 'resetGame', { currentPlayerIndex: currentPlayerIndex })
     }, 30);

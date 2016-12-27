@@ -1,7 +1,7 @@
-//var onTouch: any
+
 //TODO:
-// after win ... player[0] gets two turns? and ... scores are not correct
-// we need to broadcast the WINNER and then each player will reset?
+// after win ... player[0] gets two turns?
+// after win ... scores are not correct
 class Game {
   static doc = document.body
   static currentPlayer: Player
@@ -14,6 +14,7 @@ class Game {
   leftBonus: number = 0
   leftScoreElement: HTMLElement
   self: any
+
   constructor() {
     this.self = this
     UI.buildPlayerElements(this)
@@ -51,7 +52,6 @@ class Game {
           break;
         case 'resetGame': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
           Game.currentPlayer = App.players[data.currentPlayerIndex]
-          console.log('resetGame' + new Date().getMilliseconds())
           this.resetGame()
           break;
         default:
@@ -73,26 +73,26 @@ class Game {
     // distX: distance traveled horizontally
     // distY: distance traveled vertically
     ontouch(Game.doc, function (touchobj: any, phase: string, distX: number, distY: number) {
-      if (phase !== 'start') { return}
+      if (phase !== 'start') { return }
       // identify the UI element that was actually clicked
       var target = touchobj.target //document.elementFromPoint(touchobj.clientX, touchobj.clientY)
       // be sure to reject all local click-events during a competitors turns
-      if (Game.currentPlayer.id === App.thisID) {
+      if (Game.currentPlayer === Game.thisPlayer) {
         // discover any class for this UI element
         var className = target.getAttribute('class')
         // get the UI elements ID
-        var element_id = target.getAttribute('data-id')
+        var elementID = target.getAttribute('data-id')
         // test if the element_id contains an index value (score elements)
-        var index = parseInt(element_id, 10)
+        var index = parseInt(elementID, 10)
         // is it the roll button?
-        if (element_id === 'rollButton') {
+        if (elementID === 'rollButton') {
           self.rollTheDice({ id: App.thisID })
           // is it the exit buttom?
-        } else if (element_id === 'exit_menu') {
+        } else if (elementID === 'exit_menu') {
           window.close()
           setTimeout(() => { alert("Please close the 'Browser-Tab' to exit this program!") }, 250)
           // is it the status button?
-        } else if (element_id === 'status_menu') {
+        } else if (elementID === 'status_menu') {
           alert('status')
           // was it a die that was clicked?
         } else if (className === 'die') {
@@ -101,9 +101,9 @@ class Game {
           // was it a score element that was clicked?
         } else if (className === 'shaddowed score-container'
           || className === 'score-label'
-          || className === 'score-value') {
-          if (element_id && element_id.length > 0 && Dice.evaluator.sumOfAllDie > 0) {
-            let elemIndex = parseInt(element_id, 10)
+          || className === 'score-value available') {
+          if (Dice.evaluator.sumOfAllDie > 0) {
+            let elemIndex = parseInt(elementID, 10)
             // broadcast this scoreElements 'clicked' method
             socketSend('scoreClicked', {
               'id': App.thisID,
@@ -119,16 +119,11 @@ class Game {
       }
     })
     this.resetGame()
-  }
+  } // end constructor
 
   showPlayerScores(player: Player) {
     let message: string
-    if (player === Game.thisPlayer) {
-      message = 'Your Scoring Statistics:' + '\n ' + '\n'
-    }
-    else {
-      message = 'Computers Scoring Statistics:' + '\n' + '\n'
-    }
+    message = 'Your Scoring Statistics:' + '\n ' + '\n'
     document.getElementById('scoresContent').textContent = message
     app.scoresDialog.showModal()
   }
@@ -136,7 +131,10 @@ class Game {
   rollTheDice(data: any) {
     app.sounds.play(app.sounds.roll)
     if (this.gameOver) {
-      this.resetGame()
+      socketSend('gameOver', {
+        'id': App.thisID
+      })
+
     }
     // if it's us ...
     if (data.id === App.thisID) {
@@ -189,7 +187,15 @@ class Game {
       this.setLeftScores()
       this.setRightScores()
       if (App.players.length > 1) {
-        this.showFinalScore((App.players[App.myIndex].score > App.players[1].score) ? App.players[App.myIndex] : App.players[1])
+        let winner: Player
+        let highscore = 0
+        App.players.forEach(function (thisPlayer) {
+          if (thisPlayer.score > highscore) {
+            highscore = thisPlayer.score
+            winner = thisPlayer
+          }
+        })
+        this.showFinalScore(winner)
       } else {
         this.showFinalScore(App.players[App.myIndex])
       }
@@ -235,20 +241,18 @@ class Game {
         }
       }
     }
-    var bonusValue = 35
-    this.leftBonus = (this.leftTotal > 62) ? bonusValue : 0
-    if (this.leftBonus > 0) {
-      this.leftScoreElement.textContent = '^ total = ' + this.leftTotal.toString() + '+' + bonusValue
-      if (App.players[App.myIndex].score > App.players[1].score) {
-        App.players[App.myIndex].addScore(bonusValue)
-      }
-      else {
-        if (App.players.length > 1) {
-          App.players[1].addScore(bonusValue)
+    if (this.leftTotal > 62) { // award bonus
+      this.leftScoreElement.textContent = '^ total = ' + this.leftTotal.toString() + ' + 35'
+      let bonusWinner: Player
+      let highleft = 0
+      App.players.forEach(function (thisPlayer) {
+        if (thisPlayer.score > highleft) {
+          highleft = thisPlayer.score
+          bonusWinner = thisPlayer
         }
-      }
-    }
-    else {
+      })
+      bonusWinner.addScore(35)
+    } else {
       this.leftScoreElement.textContent = '^ total = ' + this.leftTotal.toString()
     }
     if (this.leftTotal === 0) {
@@ -297,7 +301,8 @@ class Game {
     App.players.forEach((player) => {
       player.resetScore()
     })
-    Game.currentPlayer = App.players[0]
+    //TODO: set this on server? app?
+    //Game.currentPlayer = App.players[0]
     this.rollButton.style.backgroundColor = Game.currentPlayer.color
     this.rollButton.textContent = 'Roll Dice'
     this.rollButton.disabled = false

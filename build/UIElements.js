@@ -16,11 +16,11 @@ class UI {
         App.playerElements[0].textContent = '.';
         App.playerElements[0].style.color = 'black';
         App.playerElements[1].textContent = '.';
+        App.playerElements[1].style.color = 'black';
+        App.playerElements[2].textContent = '.';
         App.playerElements[2].style.color = 'black';
-        App.playerElements[1].textContent = '.';
-        App.playerElements[2].style.color = 'black';
-        App.playerElements[1].textContent = '.';
-        App.playerElements[2].style.color = 'black';
+        App.playerElements[3].textContent = '.';
+        App.playerElements[3].style.color = 'black';
     }
     static buildScoreElements(game) {
         let $ = (name) => { return document.getElementById(name); };
