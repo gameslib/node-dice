@@ -3,7 +3,7 @@ class Modules {
         this.scriptElements = {};
         this.baseURL = 'build/';
         this.head = document.getElementsByTagName('head')[0];
-        Modules.BootName = document.getElementsByTagName('script')[1].getAttribute('data-boot');
+        Modules.BootName = document.getElementsByTagName('script')[0].getAttribute('data-boot');
     }
     load(names) {
         if (names instanceof Array) {

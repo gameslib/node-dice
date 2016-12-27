@@ -25,7 +25,7 @@ class Modules {
   static BootName = 'app.js'
 
   constructor() {
-    Modules.BootName = document.getElementsByTagName('script')[1].getAttribute('data-boot')
+    Modules.BootName = document.getElementsByTagName('script')[0].getAttribute('data-boot')
   }
 
   load(names: [string] | string) {

@@ -36,6 +36,19 @@ class UI {
     App.playerElements[2] = document.getElementById('player3')
     App.playerElements[3] = document.getElementById('player4')
   }
+  static resetScoreElements() {
+    App.playerElements[0].textContent = '.'
+    App.playerElements[0].style.color = 'black'
+
+    App.playerElements[1].textContent = '.'
+    App.playerElements[2].style.color = 'black'
+
+    App.playerElements[1].textContent = '.'
+    App.playerElements[2].style.color = 'black'
+
+    App.playerElements[1].textContent = '.'
+    App.playerElements[2].style.color = 'black'
+  }
 
   static buildScoreElements(game: Game) {
     let $ = (name: string) => { return document.getElementById(name) }

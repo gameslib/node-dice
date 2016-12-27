@@ -1,11 +1,11 @@
+//var onTouch: any
 //TODO:
-// need to assure initial button lockout
-// winner not selected correctly?
+// after win ... player[0] gets two turns? and ... scores are not correct
+// we need to broadcast the WINNER and then each player will reset?
 class Game {
-
+  static doc = document.body
   static currentPlayer: Player
   static thisPlayer: Player
-  static id: number
   rollButton: HTMLButtonElement
   gameOver: boolean = false
   leftTotal: number = 0
@@ -13,36 +13,51 @@ class Game {
   yahtzBonus: number = 0
   leftBonus: number = 0
   leftScoreElement: HTMLElement
-
+  self: any
   constructor() {
-
+    this.self = this
     UI.buildPlayerElements(this)
     var person = prompt("Please enter your name", "Nick")
-    App.players[0] = (new Player(App.id, person, 'red', 0, App.playerElements[0]))
+    App.thisID = genId()
+    App.players[0] = (new Player(App.thisID, person, 'red', 0, App.playerElements[0]))
     Game.thisPlayer = App.players[0]
     Game.currentPlayer = Game.thisPlayer
 
-    socket.emit('loggedIn', {
+    socketSend('loggedIn', {
+      'id': App.thisID,
       'name': person
     });
-    socket.on('updateRoll', (data: any) => {
-      this.rollTheDice(data)
-    })
-    socket.on('updateDie', (data: any) => {
-      app.dice.die[data.dieNumber].clicked()
-    })
 
-    socket.on('updateScore', (data: any) => {
-      console.log('on-updateScore')
-      if (UI.scoreElements[parseInt(data.scoreNumber, 10)].clicked()) {
+    socket.onmessage = (message: any) => {
+      var d = JSON.parse(message.data);
+      var messageName = d.name;
+      var data = d.data
+      switch (messageName) {
+        case 'setPlayers': // data = {object containing players-objects}
+          setPlayers(data)
+          break;
+        case 'updateRoll': // data = { 'id': App.thisID, 'dice': app.dice.die }
+          this.rollTheDice(data)
+          break;
+        case 'updateDie': //  data = { 'dieNumber': index }
+          app.dice.die[data.dieNumber].clicked()
+          break;
+        case 'updateScore': // data = { 'scoreNumber': elemIndex }
+          UI.scoreElements[parseInt(data.scoreNumber, 10)].clicked()
+          break;
+        case 'resetTurn': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
+          Game.currentPlayer = App.players[data.currentPlayerIndex]
+          this.resetTurn()
+          break;
+        case 'resetGame': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
+          Game.currentPlayer = App.players[data.currentPlayerIndex]
+          console.log('resetGame' + new Date().getMilliseconds())
+          this.resetGame()
+          break;
+        default:
+          break;
       }
-    })
-
-    socket.on('resetTurn', (data: any) => {
-      console.log('Last player: ' + Game.currentPlayer.name + ' New player: ' + App.players[data.currentPlayerIndex].name)
-      Game.currentPlayer = App.players[data.currentPlayerIndex]
-      this.resetTurn()
-    })
+    }
 
     let ui = new UI()
     const self = this
@@ -51,73 +66,59 @@ class Game {
     app.dice = new Dice()
     app.possible = new Possible()
     UI.buildScoreElements(this)
-    document.addEventListener('click', function (event) {
-      self.clickEventAggregator(event)
-    })
-    this.resetGame()
-  }
 
-  // we route all UI click events thru this central click-handler function
-  clickEventAggregator(event: MouseEvent) {
-    // capture the mouse info
-    var mouseEvent = event
-    // identify the UI element that was actually clicked
-    var target = document.elementFromPoint(mouseEvent.clientX, mouseEvent.clientY)
-    // be sure to reject all local click-events during a competitors turns
-    if (Game.currentPlayer.id === App.id) {
-      // discover any class for this UI element
-      var className = target.getAttribute('class')
-      // get the UI elements ID
-      var element_id = target.getAttribute('data-id')
-      // test if the element_id contains an index value (score elements)
-      var index = parseInt(element_id, 10)
-      // is it the roll button?
-      if (element_id === 'rollButton') {
-        this.rollTheDice({id: App.id})
-      }
-
-      // is it the exit buttom?
-      else if (element_id === 'exit_menu') {
+    // We route all UI click events thru this central click-handler function
+    // touchobj: contains the actual object that was touched
+    // phase: contains "start", "move", or "end"
+    // distX: distance traveled horizontally
+    // distY: distance traveled vertically
+    ontouch(Game.doc, function (touchobj: any, phase: string, distX: number, distY: number) {
+      if (phase !== 'start') { return}
+      // identify the UI element that was actually clicked
+      var target = touchobj.target //document.elementFromPoint(touchobj.clientX, touchobj.clientY)
+      // be sure to reject all local click-events during a competitors turns
+      if (Game.currentPlayer.id === App.thisID) {
+        // discover any class for this UI element
+        var className = target.getAttribute('class')
+        // get the UI elements ID
+        var element_id = target.getAttribute('data-id')
+        // test if the element_id contains an index value (score elements)
+        var index = parseInt(element_id, 10)
+        // is it the roll button?
+        if (element_id === 'rollButton') {
+          self.rollTheDice({ id: App.thisID })
+          // is it the exit buttom?
+        } else if (element_id === 'exit_menu') {
           window.close()
-          setTimeout( () => { alert("Please close the 'Browser-Tab' to exit this program!") }, 250)
-
-      // is it the status button?
-      } else if (element_id === 'status_menu') {
-        alert('status')
-
-      // was it a die that was clicked?
-      } else if (className === 'die') {
-        app.dice.die[index].clicked()
-        socket.emit('dieClicked', {
-          'id': Game.id,
-          'dieNumber': index
-        });
-
-      // was it a score element that was clicked?
-      } else if (className === 'shaddowed score-container'
-        || className === 'score-label'
-        || className === 'score-value') {
-        if (element_id && element_id.length > 0 && Dice.evaluator.sumOfAllDie > 0) {
-          let elemIndex = parseInt(element_id, 10)
-          // broadcast this scoreElements 'clicked' method
-          console.log('emit-scoreClicked')
-          socket.emit('scoreClicked', {
-            'id': Game.id,
-            'scoreNumber': elemIndex
-          });
-          if (UI.scoreElements[elemIndex].clicked()) {
-            console.log('emit-turnOver')
-            socket.emit('turnOver', {
-              'id': Game.id
+          setTimeout(() => { alert("Please close the 'Browser-Tab' to exit this program!") }, 250)
+          // is it the status button?
+        } else if (element_id === 'status_menu') {
+          alert('status')
+          // was it a die that was clicked?
+        } else if (className === 'die') {
+          app.dice.die[index].clicked()
+          socketSend('dieClicked', { 'dieNumber': index });
+          // was it a score element that was clicked?
+        } else if (className === 'shaddowed score-container'
+          || className === 'score-label'
+          || className === 'score-value') {
+          if (element_id && element_id.length > 0 && Dice.evaluator.sumOfAllDie > 0) {
+            let elemIndex = parseInt(element_id, 10)
+            // broadcast this scoreElements 'clicked' method
+            socketSend('scoreClicked', {
+              'id': App.thisID,
+              'scoreNumber': elemIndex
             });
+            if (UI.scoreElements[elemIndex].clicked()) {
+              socketSend('turnOver', {
+                'id': App.thisID
+              });
+            }
           }
-
-
-
-
         }
       }
-    }
+    })
+    this.resetGame()
   }
 
   showPlayerScores(player: Player) {
@@ -138,11 +139,10 @@ class Game {
       this.resetGame()
     }
     // if it's us ...
-    if (data.id === App.id) {
+    if (data.id === App.thisID) {
       app.dice.roll()
-      socket.emit('playerRolled', {
-        'id': App.id,
-        'player': Game.currentPlayer.name,
+      socketSend('playerRolled', {
+        'id': App.thisID,
         'dice': app.dice.die
       });
     } else {
@@ -220,8 +220,8 @@ class Game {
   setLeftScores() {
     this.leftTotal = 0
 
-    App.players.forEach((player) =>{
-        player.score = 0
+    App.players.forEach((player) => {
+      player.score = 0
     })
 
     var val: number
@@ -286,6 +286,7 @@ class Game {
     UI.scoreElements.forEach(function (thisElement: ScoreElement) {
       thisElement.reset()
     })
+    UI.resetScoreElements()
     this.gameOver = false
     this.leftBonus = 0
     this.yahtzBonus = 0
@@ -294,9 +295,9 @@ class Game {
     this.leftScoreElement.textContent = '^ total = 0'
 
     App.players.forEach((player) => {
-        player.resetScore()
+      player.resetScore()
     })
-
+    Game.currentPlayer = App.players[0]
     this.rollButton.style.backgroundColor = Game.currentPlayer.color
     this.rollButton.textContent = 'Roll Dice'
     this.rollButton.disabled = false

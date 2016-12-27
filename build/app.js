@@ -1,24 +1,39 @@
-var io = io || {};
-const socket = io.connect('192.168.1.143:8080');
-socket.on('connect', () => {
-    App.id = socket.id;
-    console.log('my registered id = ' + socket.id);
-});
-socket.on('setPlayers', (data) => {
+const HOST = location.origin.replace(/^http/, 'ws');
+const socket = new WebSocket(HOST);
+var socketSend = function (name, data) {
+    if (socket) {
+        var msg = JSON.stringify({ name: name, data: data });
+        socket.send(msg);
+    }
+    else {
+        throw new Error('No open WebSocket connections.');
+    }
+    return this;
+};
+var setPlayers = function (data) {
     App.players = [];
     let index = 0;
     Object.keys(data).forEach(function (prop) {
         App.players[index] = (new Player(data[prop].id, data[prop].name, data[prop].color, 0, App.playerElements[index]));
-        if (App.id === data[prop].id) {
+        if (App.thisID === data[prop].id) {
             Game.thisPlayer = App.players[index];
             App.myIndex = index;
         }
         index += 1;
-        console.info(App.players);
     });
     Game.thisPlayer = App.players[App.myIndex];
     Game.currentPlayer = App.players[0];
-});
+};
+var genId = function () {
+    let chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let num = 10;
+    let id = '';
+    for (var i = 0; i < num; i++) {
+        chars[i];
+        id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return id;
+};
 var myGame;
 class App {
     constructor() {

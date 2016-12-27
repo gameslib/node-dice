@@ -5,30 +5,47 @@ class Game {
         this.rightTotal = 0;
         this.yahtzBonus = 0;
         this.leftBonus = 0;
+        this.self = this;
         UI.buildPlayerElements(this);
         var person = prompt("Please enter your name", "Nick");
-        App.players[0] = (new Player(App.id, person, 'red', 0, App.playerElements[0]));
+        App.thisID = genId();
+        App.players[0] = (new Player(App.thisID, person, 'red', 0, App.playerElements[0]));
         Game.thisPlayer = App.players[0];
         Game.currentPlayer = Game.thisPlayer;
-        socket.emit('loggedIn', {
+        socketSend('loggedIn', {
+            'id': App.thisID,
             'name': person
         });
-        socket.on('updateRoll', (data) => {
-            this.rollTheDice(data);
-        });
-        socket.on('updateDie', (data) => {
-            app.dice.die[data.dieNumber].clicked();
-        });
-        socket.on('updateScore', (data) => {
-            console.log('on-updateScore');
-            if (UI.scoreElements[parseInt(data.scoreNumber, 10)].clicked()) {
+        socket.onmessage = (message) => {
+            var d = JSON.parse(message.data);
+            var messageName = d.name;
+            var data = d.data;
+            switch (messageName) {
+                case 'setPlayers':
+                    setPlayers(data);
+                    break;
+                case 'updateRoll':
+                    this.rollTheDice(data);
+                    break;
+                case 'updateDie':
+                    app.dice.die[data.dieNumber].clicked();
+                    break;
+                case 'updateScore':
+                    UI.scoreElements[parseInt(data.scoreNumber, 10)].clicked();
+                    break;
+                case 'resetTurn':
+                    Game.currentPlayer = App.players[data.currentPlayerIndex];
+                    this.resetTurn();
+                    break;
+                case 'resetGame':
+                    Game.currentPlayer = App.players[data.currentPlayerIndex];
+                    console.log('resetGame' + new Date().getMilliseconds());
+                    this.resetGame();
+                    break;
+                default:
+                    break;
             }
-        });
-        socket.on('resetTurn', (data) => {
-            console.log('Last player: ' + Game.currentPlayer.name + ' New player: ' + App.players[data.currentPlayerIndex].name);
-            Game.currentPlayer = App.players[data.currentPlayerIndex];
-            this.resetTurn();
-        });
+        };
         let ui = new UI();
         const self = this;
         app.game = this;
@@ -36,54 +53,48 @@ class Game {
         app.dice = new Dice();
         app.possible = new Possible();
         UI.buildScoreElements(this);
-        document.addEventListener('click', function (event) {
-            self.clickEventAggregator(event);
-        });
-        this.resetGame();
-    }
-    clickEventAggregator(event) {
-        var mouseEvent = event;
-        var target = document.elementFromPoint(mouseEvent.clientX, mouseEvent.clientY);
-        if (Game.currentPlayer.id === App.id) {
-            var className = target.getAttribute('class');
-            var element_id = target.getAttribute('data-id');
-            var index = parseInt(element_id, 10);
-            if (element_id === 'rollButton') {
-                this.rollTheDice({ id: App.id });
+        ontouch(Game.doc, function (touchobj, phase, distX, distY) {
+            if (phase !== 'start') {
+                return;
             }
-            else if (element_id === 'exit_menu') {
-                window.close();
-                setTimeout(() => { alert("Please close the 'Browser-Tab' to exit this program!"); }, 250);
-            }
-            else if (element_id === 'status_menu') {
-                alert('status');
-            }
-            else if (className === 'die') {
-                app.dice.die[index].clicked();
-                socket.emit('dieClicked', {
-                    'id': Game.id,
-                    'dieNumber': index
-                });
-            }
-            else if (className === 'shaddowed score-container'
-                || className === 'score-label'
-                || className === 'score-value') {
-                if (element_id && element_id.length > 0 && Dice.evaluator.sumOfAllDie > 0) {
-                    let elemIndex = parseInt(element_id, 10);
-                    console.log('emit-scoreClicked');
-                    socket.emit('scoreClicked', {
-                        'id': Game.id,
-                        'scoreNumber': elemIndex
-                    });
-                    if (UI.scoreElements[elemIndex].clicked()) {
-                        console.log('emit-turnOver');
-                        socket.emit('turnOver', {
-                            'id': Game.id
+            var target = touchobj.target;
+            if (Game.currentPlayer.id === App.thisID) {
+                var className = target.getAttribute('class');
+                var element_id = target.getAttribute('data-id');
+                var index = parseInt(element_id, 10);
+                if (element_id === 'rollButton') {
+                    self.rollTheDice({ id: App.thisID });
+                }
+                else if (element_id === 'exit_menu') {
+                    window.close();
+                    setTimeout(() => { alert("Please close the 'Browser-Tab' to exit this program!"); }, 250);
+                }
+                else if (element_id === 'status_menu') {
+                    alert('status');
+                }
+                else if (className === 'die') {
+                    app.dice.die[index].clicked();
+                    socketSend('dieClicked', { 'dieNumber': index });
+                }
+                else if (className === 'shaddowed score-container'
+                    || className === 'score-label'
+                    || className === 'score-value') {
+                    if (element_id && element_id.length > 0 && Dice.evaluator.sumOfAllDie > 0) {
+                        let elemIndex = parseInt(element_id, 10);
+                        socketSend('scoreClicked', {
+                            'id': App.thisID,
+                            'scoreNumber': elemIndex
                         });
+                        if (UI.scoreElements[elemIndex].clicked()) {
+                            socketSend('turnOver', {
+                                'id': App.thisID
+                            });
+                        }
                     }
                 }
             }
-        }
+        });
+        this.resetGame();
     }
     showPlayerScores(player) {
         let message;
@@ -101,11 +112,10 @@ class Game {
         if (this.gameOver) {
             this.resetGame();
         }
-        if (data.id === App.id) {
+        if (data.id === App.thisID) {
             app.dice.roll();
-            socket.emit('playerRolled', {
-                'id': App.id,
-                'player': Game.currentPlayer.name,
+            socketSend('playerRolled', {
+                'id': App.thisID,
                 'dice': app.dice.die
             });
         }
@@ -241,6 +251,7 @@ class Game {
         UI.scoreElements.forEach(function (thisElement) {
             thisElement.reset();
         });
+        UI.resetScoreElements();
         this.gameOver = false;
         this.leftBonus = 0;
         this.yahtzBonus = 0;
@@ -250,8 +261,10 @@ class Game {
         App.players.forEach((player) => {
             player.resetScore();
         });
+        Game.currentPlayer = App.players[0];
         this.rollButton.style.backgroundColor = Game.currentPlayer.color;
         this.rollButton.textContent = 'Roll Dice';
         this.rollButton.disabled = false;
     }
 }
+Game.doc = document.body;

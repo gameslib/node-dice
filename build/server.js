@@ -1,55 +1,74 @@
-const nodeStatic = require('node-static');
-const http = require('http').createServer(handler);
-var io = require('socket.io')(http);
-io.serveClient(true);
+const server = require('http').createServer(httpHamdler).listen(81);
+const WebSocketServer = require('ws').Server;
+const staticFileServer = require('node-static');
+let fileServer = new staticFileServer.Server('./');
+let socketServer = new WebSocketServer({ server });
 var numberOfPlayers = 0;
 var players = {};
 var playerColors = ['#f00', '#0f0', 'yellow', 'blue'];
 var currentPlayerIndex = 0;
-const fileServer = new nodeStatic.Server('./', {
-    cache: 0
-});
-http.listen(8080);
-function handler(request, response) {
+function httpHamdler(request, response) {
     request.addListener('end', function () {
         fileServer.serve(request, response);
     });
     request.resume();
 }
-io.on('connection', function (client) {
-    console.log('client succesfully connected with id: ' + client.id);
-    client.on('disconnect', function () {
+socketServer.on('connection', function (client) {
+    client.id = numberOfPlayers;
+    client.on('message', (message) => {
+        var d = JSON.parse(message);
+        console.log('message: ' + d.name + ' data = ' + d.data.name);
+        switch (d.name) {
+            case 'loggedIn':
+                numberOfPlayers = Object.keys(players).length;
+                players[numberOfPlayers] = { id: d.data.id, name: d.data.name, color: playerColors[numberOfPlayers] };
+                numberOfPlayers = Object.keys(players).length;
+                broadcastAll(client, 'setPlayers', players);
+                broadcastAll(client, 'resetGame', { currentPlayerIndex: 0 });
+                break;
+            case 'playerRolled':
+                broadcast(client, 'updateRoll', d.data);
+                break;
+            case 'dieClicked':
+                broadcast(client, 'updateDie', d.data);
+                break;
+            case 'scoreClicked':
+                broadcast(client, 'updateScore', d.data);
+                break;
+            case 'turnOver':
+                currentPlayerIndex += 1;
+                if (currentPlayerIndex > numberOfPlayers - 1) {
+                    currentPlayerIndex = 0;
+                }
+                d.data.currentPlayerIndex = currentPlayerIndex;
+                broadcastAll(client, 'resetTurn', d.data);
+                break;
+            default:
+                break;
+        }
+    });
+    client.on('close', (message) => {
+        console.log('message: close  data = ' + client.id);
         delete players[client.id];
         numberOfPlayers = Object.keys(players).length;
-        console.log('Socket disconnected client id: ' + client.id + ' new count = ' + numberOfPlayers);
-        io.emit('setPlayers', players);
-    });
-    client.on('loggedIn', function (data) {
-        numberOfPlayers = Object.keys(players).length;
-        console.log(data.name + ' logged in as ' + client.id);
-        players[client.id] = { id: client.id, name: data.name, color: playerColors[numberOfPlayers] };
-        numberOfPlayers = Object.keys(players).length;
-        console.log('players count = ' + numberOfPlayers);
-        io.sockets.emit('setPlayers', players);
-        console.info(players);
-    });
-    client.on('playerRolled', function (data) {
-        client.broadcast.emit('updateRoll', data);
-    });
-    client.on('dieClicked', function (data) {
-        client.broadcast.emit('updateDie', data);
-    });
-    client.on('scoreClicked', function (data) {
-        console.log('player selected score # ' + data.scoreNumber);
-        client.broadcast.emit('updateScore', data);
-    });
-    client.on('turnOver', function (data) {
-        currentPlayerIndex += 1;
-        if (currentPlayerIndex > numberOfPlayers - 1) {
+        broadcastAll(client, 'setPlayers', players);
+        console.log('broadcastAll setPlayers');
+        setTimeout(() => {
+            console.log('broadcastAll resetGame');
             currentPlayerIndex = 0;
-        }
-        data.currentPlayerIndex = currentPlayerIndex;
-        console.log('turnOver: ' + data.currentPlayerIndex);
-        io.sockets.emit('resetTurn', data);
+            broadcastAll(client, 'resetGame', { currentPlayerIndex: currentPlayerIndex });
+        }, 30);
     });
 });
+var broadcast = function (client, name, data) {
+    for (var i in socketServer.clients) {
+        if (client !== socketServer.clients[i]) {
+            socketServer.clients[i].send(JSON.stringify({ name: name, data: data }));
+        }
+    }
+};
+var broadcastAll = function (client, name, data) {
+    for (var i in socketServer.clients) {
+        socketServer.clients[i].send(JSON.stringify({ name: name, data: data }));
+    }
+};

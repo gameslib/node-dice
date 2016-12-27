@@ -27,6 +27,7 @@ class Player {
   resetScore() {
     this.score = 0
     this.element.textContent = this.name
+    this.element.style.color = this.color
   }
 
 }
