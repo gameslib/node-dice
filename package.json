@@ -4,8 +4,7 @@
   "description": "new dice game",
   "main": "app.js",
   "dependencies": {
-    "node-static": "^0.7.9",
-    "socket.io": "latest"
+    "ws": "^1.1.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

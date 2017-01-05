@@ -1,20 +1,33 @@
 class DieFaceBuilder {
-    buildDieFaces(ctx) {
-        var size = ctx.canvas.width;
+    buildDieFaces(size) {
+        var size = size;
+        let c = document.createElement('canvas');
+        c.width = size;
+        c.height = size;
+        let ctx = c.getContext('2d');
+        ctx.fillStyle = 'snow';
+        ctx.fillRect(0, 0, size, size);
         for (var i = 0; i < 7; i++) {
-            Die.faces[i] = this.drawDie(ctx, size, 1.0, i);
-            Die.frozenFaces[i] = this.drawDie(ctx, size, 0.5, i);
+            Die.faces[i] = this.drawDie(ctx, size, false, i);
+            Die.frozenFaces[i] = this.drawDie(ctx, size, true, i);
         }
+        c = undefined;
     }
-    drawDie(ctx, size, alpha, value) {
-        ctx.clearRect(0, 0, size, size);
+    drawDie(ctx, size, frozen, value) {
+        ctx.fillStyle = 'transparent';
+        ctx.fillRect(0, 0, size, size);
         ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.strokeStyle = 'black';
-        ctx.fillStyle = 'white';
+        if (frozen) {
+            ctx.strokeStyle = 'silver';
+            ctx.fillStyle = 'WhiteSmoke';
+        }
+        else {
+            ctx.strokeStyle = 'black';
+            ctx.fillStyle = 'white';
+        }
         this.drawDieFace(ctx, size);
         this.drawGlare(ctx, size);
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = (frozen) ? 'silver' : 'black';
         this.drawDots(ctx, value, size);
         ctx.restore();
         return ctx.getImageData(0, 0, size, size);
@@ -28,8 +41,10 @@ class DieFaceBuilder {
         ctx.arcTo(0, size, 0, 0, radius);
         ctx.arcTo(0, 0, radius, 0, radius);
         ctx.closePath();
-        ctx.stroke();
         ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.lineWidth = 1;
     }
     drawGlare(ctx, size) {
         var offset = 5, bottomLeftX = offset, bottomLeftY = size - offset, bottomRightX = size - offset, bottomRightY = size - offset, quarter = size * 0.25, threeQuarter = quarter * 3;

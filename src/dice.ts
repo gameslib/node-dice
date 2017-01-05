@@ -10,21 +10,13 @@ class Dice {
 
     constructor() {
         Dice.evaluator = new DiceEvaluator()
-        const dieElem: HTMLCanvasElement = document.getElementById('die0') as HTMLCanvasElement
         let dieFaceBuilder = new DieFaceBuilder
-        dieFaceBuilder.buildDieFaces(dieElem.getContext('2d'))
-        /*this.die = [
-        new Die(0, document.getElementById('die0') as HTMLCanvasElement),
-        new Die(1, document.getElementById('die1') as HTMLCanvasElement),
-        new Die(2, document.getElementById('die2') as HTMLCanvasElement),
-        new Die(3, document.getElementById('die3') as HTMLCanvasElement),
-        new Die(4, document.getElementById('die4') as HTMLCanvasElement)
-        ]*/
+        dieFaceBuilder.buildDieFaces(80)
         this.die = new Array()
-        for (var i = 0; i < app.numberOfDie; i++) {
-            this.die.push(new Die(i, document.getElementById('die' + i.toString())))
+        for (var i = 0; i < 5; i++) {
+          var x = 81 + (i * 90)
+            this.die.push(new Die(i, x, 95, 82))
         }
-
         this.resetTurn()
     }
 
@@ -71,7 +63,7 @@ class Dice {
 
     toString() {
         var str = '['
-        for (var i = 0; i < app.numberOfDie; i++) {
+        for (var i = 0; i < 5; i++) {
             str += this.die[i].value
         }
         return str + ']'

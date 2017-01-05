@@ -1,17 +1,22 @@
 class Die {
-  value: number
-  lastValue: number
+
+  x: number
+  y: number
+  size: number = 80
+  value: number = 1
+  lastValue: number = 1
   frozen: boolean
   static faces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
   static frozenFaces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
   index: number
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
 
-  constructor(index: number, canvas: any) {
+  constructor(index: number, x: number, y: number, size: number) {
     this.index = index
-    this.canvas = canvas
-    this.ctx = canvas.getContext('2d')
+    this.x = x
+    this.y = y
+    this.size = size
+    this.value = 1
+    this.render()
   }
 
   clicked() {
@@ -22,12 +27,18 @@ class Die {
     }
   }
 
+  hitTest(x: number, y: number): boolean {
+    if ( x < this.x || x > this.x + this.size) {return false}
+    if ( y< this.y || y > this.y  + this.size) {return false}
+    return true
+  }
+
   render() {
     if (this.frozen) {
-      this.ctx.putImageData(Die.frozenFaces[this.value], 0, 0)
+      Board.Surface.putImageData(Die.frozenFaces[this.value], this.x, this.y)
     }
     else {
-      this.ctx.putImageData(Die.faces[this.value], 0, 0)
+      Board.Surface.putImageData(Die.faces[this.value], this.x, this.y)
     }
   }
 

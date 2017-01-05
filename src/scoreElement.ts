@@ -1,117 +1,131 @@
 
-class ScoreElement{
-
-  // We'll use a single 'Possible' object for
-  // all instances of ScoreElements (to save memory)
-  static possible: Possible
-  element: HTMLElement
+class ScoreElement {
+  static zero: string = ''
   id: number
+  path: Path2D
+  y: number
+  x: number
+  right: number
+  line1: string
+  line2: string
   name: string
+  score: string = '00'
+  isLeftHanded: Boolean
   finalValue: number
   possibleValue: number
-  valueElement: HTMLElement
   label: string
-  originalColor: any
+  originalColor: string = 'black'
+  color: string = 'black'
   owned: boolean = false
   scoringDieset: number[]
   owner: Player
   available: boolean
   hasFiveOfaKind: boolean
+  textLabel1: TextElement
+  textLabel2: TextElement
+  scoreLable: TextElement
 
-  constructor(elem: HTMLElement, id: number, name: string) {
-    this.element = elem
+  constructor(id: number, name1: string, name2: string, left: number, top: number, isLeftHanded: boolean) {
     this.id = id
-    this.name = name
+    this.line1 = name1
+    this.line2 = name2
+    this.name = name1 + ' ' + name2
+    this.x = left
+    this.y = top
     this.finalValue = 0
     this.possibleValue = 0
-    this.valueElement = elem.querySelector('.score-value') as HTMLElement
-    this.element.addEventListener('mouseover',() => {
-      if(this.owned){
-        app.logLine(this.scoringDieset.toString(),app.tooltipMsg)
-      }
-    })
-    this.element.addEventListener('mouseout',() => {
-      app.logLine('', app.resetMsg)
-    })
     this.label = name
-    this.element.querySelector('.score-label').textContent = name
-    this.originalColor = elem.style.backgroundColor
-    this.scoringDieset = [0,0,0,0,0]
-    ScoreElement.possible = new Possible()
+    this.scoringDieset = [0, 0, 0, 0, 0]
+    this.isLeftHanded = isLeftHanded
+    if (isLeftHanded) {
+      this.path = PathBuilder.BuildLeftScore(left, top)
+      this.textLabel1 = new TextElement(this.line1, this.x + 55, this.y + 40 ,85, 30, this.color, Board.textColor)
+      this.textLabel2 = new TextElement(this.line2, this.x + 55, this.y + 70 ,85, 30, this.color, Board.textColor)
+      this.scoreLable = new TextElement('', this.x + 132, this.y + 27 ,30, 30, this.color, Board.textColor)
+    } else {
+      this.path = PathBuilder.BuildRightScore(left, top)
+      this.textLabel1 = new TextElement(this.line1, this.x + 110, this.y + 40 , 85, 30, this.color, Board.textColor)
+      this.textLabel2 = new TextElement(this.line2, this.x + 110, this.y + 70 , 85, 30, this.color, Board.textColor)
+      this.scoreLable = new TextElement('', this.x + 28, this.y + 77 , 30, 30, this.color, Board.textColor)
+    }
   }
 
   setOwned(value: boolean) {
     this.owned = value
     if (this.owned) {
-      this.valueElement.classList.add('locked')
-      this.owner = Game.currentPlayer
-      this.element.style.backgroundColor = this.owner.color
-    }
-    else {
-      this.valueElement.classList.remove('locked')
+      this.owner = Board.currentPlayer
+      this.color = this.owner.color
+      this.textLabel1.backgroundColor = this.color
+      this.textLabel2.backgroundColor = this.color
+      this.render(this.color)
+      this.renderValue(this.possibleValue.toString())
+    } else {
       this.owner = null
-      this.element.style.backgroundColor = this.originalColor
+      this.textLabel1.backgroundColor = this.originalColor
+      this.textLabel2.backgroundColor = this.originalColor
+      this.render(this.originalColor)
+      this.renderValue(ScoreElement.zero)
     }
   }
 
   setAvailable(value: boolean) {
     this.available = value
     if (this.available) {
-      this.valueElement.classList.remove('locked')
-      this.valueElement.classList.add('available')
-    }
-    else {
-      if (this.owned) {
-        this.valueElement.classList.add('locked')
+      if (this.possibleValue > 0) {
+        this.renderValue(this.possibleValue.toString())
       }
-      this.valueElement.classList.remove('available')
+    } else {
+      if (this.owned) {
+        this.renderValue(this.possibleValue.toString())
+      }
+      this.renderValue(this.possibleValue.toString())
     }
   }
 
   clicked() {
+    if (Board.Dice.toString() === '[00000]') {return false}
     let scoreTaken = false
     if (!this.owned) {
-      if(this.possibleValue === 0) {
-        Game.currentPlayer.lastScore = 'sacrificed ' + this.name + ' ' + app.dice.toString()
-        app.logLine(Game.currentPlayer.name + ' ' + Game.currentPlayer.lastScore, app.scoreMsg)
+      if (this.possibleValue === 0) {
+        Board.currentPlayer.lastScore = 'sacrificed ' + this.name + ' ' + Board.Dice.toString()
+        app.logLine(Board.currentPlayer.name + ' ' + Board.currentPlayer.lastScore, app.scoreMsg)
       } else {
-        let wasTaken = (Game.currentPlayer == Game.thisPlayer) ? 'takes ': 'took '
-        Game.currentPlayer.lastScore = wasTaken + this.name + ' ' + app.dice.toString()
-        app.logLine(Game.currentPlayer.name + ' ' + Game.currentPlayer.lastScore, app.scoreMsg)
+        let wasTaken = (Board.currentPlayer == Board.thisPlayer) ? 'takes ' : 'took '
+        Board.currentPlayer.lastScore = wasTaken + this.name + ' ' + Board.Dice.toString()
+        app.logLine(Board.currentPlayer.name + ' ' + Board.currentPlayer.lastScore, app.scoreMsg)
       }
       if (this.id === UI.FiveOfaKind) {
-        if (app.dice.isFiveOfaKind) {
-          app.dice.fiveOfaKindBonusAllowed = true
+        if (Board.Dice.isFiveOfaKind) {
+          Board.Dice.fiveOfaKindBonusAllowed = true
           app.sounds.play(app.sounds.heehee)
         } else {
-          app.dice.fiveOfaKindWasSacrificed = true
+          Board.Dice.fiveOfaKindWasSacrificed = true
           app.sounds.play(app.sounds.dohh)
         }
       }
       this.setValue()
-      scoreTaken =  true
+      scoreTaken = true
     }
     else if (this.available) {
-      Game.currentPlayer.lastScore = 'stole ' + this.name + ' ' + app.dice.toString() + ' was: ' + this.scoringDieset.toString()
-      app.logLine(Game.currentPlayer.name + ' ' + Game.currentPlayer.lastScore, app.scoreMsg)
+      Board.currentPlayer.lastScore = 'stole ' + this.name + ' ' + Board.Dice.toString() + ' was: ' + this.scoringDieset.toString()
+      app.logLine(Board.currentPlayer.name + ' ' + Board.currentPlayer.lastScore, app.scoreMsg)
       this.setOwned(false)
       app.sounds.play(app.sounds.heehee)
       this.setValue()
-      scoreTaken =  true
+      scoreTaken = true
     }
-    console.log(Game.currentPlayer.name + ' ' + Game.currentPlayer.lastScore, app.scoreMsg)
     return scoreTaken
   }
   setValue() {
     this.setOwned(true)
     var thisValue = this.possibleValue
     this.finalValue = thisValue
-    this.scoringDieset.forEach(( die: number, index: number) => {
-      this.scoringDieset[index] = app.dice.die[index].value
+    this.scoringDieset.forEach((die: number, index: number) => {
+      this.scoringDieset[index] = Board.Dice.die[index].value
     })
-    if (app.dice.isFiveOfaKind) {
-      if (app.dice.fiveOfaKindBonusAllowed) {
-        app.dice.fiveOfaKindCount += 1
+    if (Board.Dice.isFiveOfaKind) {
+      if (Board.Dice.fiveOfaKindBonusAllowed) {
+        Board.Dice.fiveOfaKindCount += 1
         if (this.id !== UI.FiveOfaKind) {
           this.finalValue += 100
         }
@@ -132,24 +146,19 @@ class ScoreElement{
   }
 
   setPossible() {
-    this.possibleValue = ScoreElement.possible.evaluate(this.id)
+    this.possibleValue = Board.possible.evaluate(this.id)
     if (!this.owned) {
       if (this.possibleValue === 0) {
-        this.valueElement.textContent = ''
-      }
-      else {
-        this.valueElement.textContent = this.possibleValue.toString()
+        this.renderValue(ScoreElement.zero)
+      } else {
+        this.renderValue(this.possibleValue.toString())
       }
       this.setAvailable(true)
-
-    }
-    else {
-      if (Game.currentPlayer !== this.owner) {
-        if (this.possibleValue > this.finalValue) {
-          if (!this.hasFiveOfaKind) {
-            this.setAvailable(true)
-            this.valueElement.textContent = this.possibleValue.toString()
-          }
+    } else if (Board.currentPlayer !== this.owner) {
+      if (this.possibleValue > this.finalValue) {
+        if (!this.hasFiveOfaKind) {
+          this.setAvailable(true)
+          this.renderValue(this.possibleValue.toString())
         }
       }
     }
@@ -159,8 +168,10 @@ class ScoreElement{
     this.setOwned(false)
     this.finalValue = 0
     this.possibleValue = 0
-    this.element.style.backgroundColor = 'black'
-    this.valueElement.textContent = ''
+    this.color = this.originalColor
+    this.scoreLable.backgroundColor =this.originalColor
+    this.render(this.originalColor)
+    this.renderValue(ScoreElement.zero)
     this.hasFiveOfaKind = false
   }
 
@@ -169,10 +180,30 @@ class ScoreElement{
     this.setAvailable(false)
     if (!this.owned) {
       this.finalValue = 0
-      this.valueElement.textContent = ''
+      this.renderValue(ScoreElement.zero)
     }
     else {
-      this.valueElement.textContent = this.finalValue.toString()
+      this.renderValue(this.finalValue.toString())
     }
   }
+
+  hitTest(x: number, y: number) {
+    return Board.Surface.isPointInPath(this.path, x, y); // New
+  }
+
+  render(thisColor: string) {
+    Board.Surface.fillStyle = thisColor
+    Board.Surface.fill(this.path);
+    UI.RenderText(this.textLabel1)
+    UI.RenderText(this.textLabel2)
+  }
+
+  renderValue(scoretext: string) {
+    let scoreBoxColor = (this.available) ? '#225522' : this.color
+    if (scoretext === ScoreElement.zero) {scoreBoxColor = this.color}
+    this.scoreLable.backgroundColor = scoreBoxColor
+    this.scoreLable.text = scoretext
+    UI.RenderText(this.scoreLable)
+  }
+
 }

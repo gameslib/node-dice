@@ -4,7 +4,7 @@ class Player {
   name: string
   color: any
   score: number
-  element: any
+  element: TextElement
   isCurrent: boolean
   rollTimer: any
   lastScore: string
@@ -15,19 +15,22 @@ class Player {
     this.color = color
     this.score = score
     this.element = elem
-    this.element.style.color = color
+    this.element.textColor = color
     this.resetScore()
   }
 
   addScore(value: number) {
     this.score += value
-    this.element.textContent = this.name + ' = ' + this.score
+    this.element.textColor = this.color
+    this.element.text = this.name + ' = ' + this.score
+    UI.RenderText(this.element)
   }
 
   resetScore() {
     this.score = 0
-    this.element.textContent = this.name
-    this.element.style.color = this.color
-  }
+    this.element.textColor = this.color
+    this.element.text = this.name
+    UI.RenderText(this.element)
+   }
 
 }

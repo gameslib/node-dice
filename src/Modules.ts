@@ -17,7 +17,7 @@
  *
  * NOTE: Please see Bottom of this file for more info.
  */
-//TODO: resolve both baseURL and the bootloader filename from the 'Modules.js' <script> tag.
+//TODO: resolve baseURL from the src attribute of the 'Modules.js' <script> tag.
 class Modules {
   scriptElements: any = {}
   baseURL = 'build/'
@@ -25,7 +25,7 @@ class Modules {
   static BootName = 'app.js'
 
   constructor() {
-    Modules.BootName = document.getElementsByTagName('script')[0].getAttribute('data-boot')
+    Modules.BootName = document.getElementsByTagName('script')[0].getAttribute('data-bootLoader')
   }
 
   load(names: [string] | string) {

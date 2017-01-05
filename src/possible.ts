@@ -76,8 +76,8 @@ class Possible  {
     evaluateNumbers(id: number) {
         var hits = 0
         var target = id + 1
-        for (var i = 0; i < app.numberOfDie; i++) {
-            var val = (app.dice.die[i]).value
+        for (var i = 0; i < 5; i++) {
+            var val = (Board.Dice.die[i]).value
             if (val === target) {
                 hits += 1
             }

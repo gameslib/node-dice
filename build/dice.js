@@ -5,12 +5,12 @@ class Dice {
         this.fiveOfaKindBonusAllowed = false;
         this.fiveOfaKindWasSacrificed = false;
         Dice.evaluator = new DiceEvaluator();
-        const dieElem = document.getElementById('die0');
         let dieFaceBuilder = new DieFaceBuilder;
-        dieFaceBuilder.buildDieFaces(dieElem.getContext('2d'));
+        dieFaceBuilder.buildDieFaces(80);
         this.die = new Array();
-        for (var i = 0; i < app.numberOfDie; i++) {
-            this.die.push(new Die(i, document.getElementById('die' + i.toString())));
+        for (var i = 0; i < 5; i++) {
+            var x = 81 + (i * 90);
+            this.die.push(new Die(i, x, 95, 82));
         }
         this.resetTurn();
     }
@@ -54,7 +54,7 @@ class Dice {
     }
     toString() {
         var str = '[';
-        for (var i = 0; i < app.numberOfDie; i++) {
+        for (var i = 0; i < 5; i++) {
             str += this.die[i].value;
         }
         return str + ']';
