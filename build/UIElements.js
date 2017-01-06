@@ -30,16 +30,15 @@ class UI {
     }
     static buildPlayerElements() {
         Board.playerScoreElements = new Array;
-        Board.playerScoreElements[0] = new TextElement('', 100, 40, 125, 35, Board.textColor, 'black');
-        Board.playerScoreElements[1] = new TextElement('', 100, 65, 125, 35, Board.textColor, 'black');
-        Board.playerScoreElements[2] = new TextElement('', 475, 40, 125, 35, Board.textColor, 'black');
-        Board.playerScoreElements[3] = new TextElement('', 475, 65, 125, 35, Board.textColor, 'black');
+        Board.playerScoreElements[0] = new labelElement('', 100, 40, 125, 35, Board.textColor, 'black');
+        Board.playerScoreElements[1] = new labelElement('', 100, 65, 125, 35, Board.textColor, 'black');
+        Board.playerScoreElements[2] = new labelElement('', 475, 40, 125, 35, Board.textColor, 'black');
+        Board.playerScoreElements[3] = new labelElement('', 475, 65, 125, 35, Board.textColor, 'black');
     }
     static resetPlayersScoreElements() {
         for (var i = 0; i < 4; i++) {
             Board.playerScoreElements[i].textColor = 'black';
             Board.playerScoreElements[i].text = '';
-            UI.RenderText(Board.playerScoreElements[i]);
         }
     }
     static RenderText(t) {
@@ -60,9 +59,9 @@ UI.FiveOfaKind = 11;
 UI.Chance = 12;
 class ButtonElement {
     constructor(left, top, width, height) {
+        this._backgroundColor = 'black';
         this.disabled = false;
-        this.backgroundColor = 'black';
-        this.textLabel = new TextElement('Roll Dice', left + 90, top + 40, width - 25, 40, 'blue', Board.textColor);
+        this.textLabel = new labelElement('Roll Dice', left + 90, top + 40, width - 25, 40, 'blue', Board.textColor);
         this.left = left;
         this.top = top;
         this.width = width;
@@ -72,18 +71,18 @@ class ButtonElement {
         this.firstPass = true;
         this.render();
     }
-    setText(text) {
-        this.textLabel.text = text;
+    get text() {
+        return this.textLabel.text;
+    }
+    set text(newText) {
+        this.textLabel.text = newText;
         this.render();
     }
-    setBackgroundColor(color) {
-        this.backgroundColor = color;
-        this.textLabel.backgroundColor = color;
-        this.render();
+    get backgroundColor() {
+        return this._backgroundColor;
     }
-    upDate(text, color) {
-        this.textLabel.text = text;
-        this.backgroundColor = color;
+    set backgroundColor(color) {
+        this._backgroundColor = color;
         this.textLabel.backgroundColor = color;
         this.render();
     }
@@ -94,7 +93,7 @@ class ButtonElement {
             Board.Surface.shadowOffsetX = 3;
             Board.Surface.shadowOffsetY = 3;
         }
-        Board.Surface.fillStyle = this.backgroundColor;
+        Board.Surface.fillStyle = this._backgroundColor;
         Board.Surface.fill(this.path);
         Board.Surface.fillStyle = Board.textColor;
         if (this.firstPass) {
@@ -107,9 +106,15 @@ class ButtonElement {
         UI.RenderText(this.textLabel);
     }
 }
-class TextElement {
+class labelElement {
+    get text() {
+        return this._text;
+    }
+    set text(newText) {
+        this._text = newText;
+        UI.RenderText(this);
+    }
     constructor(text, left, top, width, height, backgroundColor, textColor) {
-        this.text = text;
         this.left = left;
         this.rectX = left - (width * 0.52);
         this.top = top;
@@ -118,6 +123,6 @@ class TextElement {
         this.height = height;
         this.backgroundColor = backgroundColor;
         this.textColor = textColor;
-        UI.RenderText(this);
+        this.text = text;
     }
 }

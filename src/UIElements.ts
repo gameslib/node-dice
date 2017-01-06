@@ -1,7 +1,7 @@
 class UI {
   static scoreElements: ScoreElement[]
   static node: HTMLElement[]
-  // scoring index/id
+  // scoring index/ids
   static ThreeOfaKind: number = 6
   static FourOfaKind: number = 7
   static SmallStraight: number = 8
@@ -44,21 +44,20 @@ class UI {
 
   static buildPlayerElements() {
     Board.playerScoreElements = new Array
-    Board.playerScoreElements[0] = new TextElement('', 100, 40, 125, 35, Board.textColor, 'black') //new TextElement('player1', 100, 40)
-    Board.playerScoreElements[1] = new TextElement('', 100, 65, 125, 35, Board.textColor, 'black')//new PlayerElement('player2', 100, 65)
-    Board.playerScoreElements[2] = new TextElement('', 475, 40, 125, 35, Board.textColor, 'black')//new PlayerElement('player3', 475, 40)
-    Board.playerScoreElements[3] = new TextElement('', 475, 65, 125, 35, Board.textColor, 'black')//new PlayerElement('player4', 475, 65)
+    Board.playerScoreElements[0] = new labelElement('', 100, 40, 125, 35, Board.textColor, 'black') //new TextElement('player1', 100, 40)
+    Board.playerScoreElements[1] = new labelElement('', 100, 65, 125, 35, Board.textColor, 'black')//new PlayerElement('player2', 100, 65)
+    Board.playerScoreElements[2] = new labelElement('', 475, 40, 125, 35, Board.textColor, 'black')//new PlayerElement('player3', 475, 40)
+    Board.playerScoreElements[3] = new labelElement('', 475, 65, 125, 35, Board.textColor, 'black')//new PlayerElement('player4', 475, 65)
   }
 
   static resetPlayersScoreElements() {
     for (var i = 0; i < 4; i++) {
       Board.playerScoreElements[i].textColor = 'black'
       Board.playerScoreElements[i].text = ''
-      UI.RenderText(Board.playerScoreElements[i])
     }
   }
 
-  static RenderText(t: TextElement) {
+  static RenderText(t: labelElement) {
     Board.Surface.fillStyle = t.backgroundColor
     Board.Surface.fillRect(t.rectX, t.rectY, t.width, t.height)
     Board.Surface.fillStyle = t.textColor
@@ -70,18 +69,35 @@ class UI {
 
 class ButtonElement {
 
+  get text(): string {
+    return this.textLabel.text
+  }
+  set text(newText: string) {
+    this.textLabel.text = newText
+    this.render()
+  }
+
+  _backgroundColor: string = 'black'
+  get backgroundColor(): string {
+    return this._backgroundColor
+  }
+  set backgroundColor(color: string) {
+    this._backgroundColor = color
+    this.textLabel.backgroundColor = color
+    this.render()
+  }
+
   left: number
   top: number
   width: number
   height: number
   disabled: boolean = false
-  backgroundColor: string = 'black'
   path: Path2D
   firstPass: boolean // used for shadow control
-  textLabel: TextElement
+  textLabel: labelElement
 
   constructor(left: number, top: number, width: number, height: number) {
-    this.textLabel = new TextElement('Roll Dice', left + 90, top + 40, width - 25, 40, 'blue', Board.textColor)
+    this.textLabel = new labelElement('Roll Dice', left + 90, top + 40, width - 25, 40, 'blue', Board.textColor)
     this.left = left
     this.top = top
     this.width = width
@@ -89,24 +105,6 @@ class ButtonElement {
     let path = new Path2D()
     this.path = PathBuilder.BuildRectangle(left, top, width, height)
     this.firstPass = true
-    this.render()
-  }
-
-  setText(text: string) {
-    this.textLabel.text = text
-    this.render()
-  }
-
-  setBackgroundColor(color: string) {
-    this.backgroundColor = color
-    this.textLabel.backgroundColor = color
-    this.render()
-  }
-
-  upDate(text: string, color: string) {
-    this.textLabel.text = text
-    this.backgroundColor = color
-    this.textLabel.backgroundColor = color
     this.render()
   }
 
@@ -119,7 +117,7 @@ class ButtonElement {
       Board.Surface.shadowOffsetY = 3
       // end shadow
     }
-    Board.Surface.fillStyle = this.backgroundColor
+    Board.Surface.fillStyle = this._backgroundColor
     Board.Surface.fill(this.path);
     Board.Surface.fillStyle = Board.textColor
     if (this.firstPass) {
@@ -133,9 +131,16 @@ class ButtonElement {
   }
 }
 
-class TextElement {
+class labelElement {
+  private _text: string
+  get text(): string {
+    return this._text
+  }
+  set text(newText: string) {
+    this._text = newText
+    UI.RenderText(this)
+  }
 
-  text: string
   left: number
   rectX: number
   top: number
@@ -146,7 +151,6 @@ class TextElement {
   textColor: string
 
   constructor(text: string, left: number, top: number, width: number, height: number, backgroundColor: string, textColor: string) {
-    this.text = text
     this.left = left
     this.rectX = left - (width * 0.52)
     this.top = top
@@ -155,6 +159,6 @@ class TextElement {
     this.height = height
     this.backgroundColor = backgroundColor
     this.textColor = textColor
-    UI.RenderText(this)
+    this.text = text
   }
 }

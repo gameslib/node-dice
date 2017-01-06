@@ -20,7 +20,7 @@ class Board {
         Board.Surface.font = "small-caps 18px arial";
         Board.Surface.textAlign = 'center';
         Board.Surface.fillRect(0, 0, Board.canvas.width, Board.canvas.height);
-        app.infoElement = new TextElement('', 300, 600, 590, 40, Board.textColor, 'black');
+        app.infoElement = new labelElement('', 300, 600, 590, 40, Board.textColor, 'black');
         UI.buildPlayerElements();
         var person = prompt("Please enter your name", "Me");
         App.players[0] = (new Player(App.thisID, person, 'red', 0, Board.playerScoreElements[0]));
@@ -61,7 +61,7 @@ class Board {
         };
         UI.buildScoreElements();
         Board.Dice = new Dice();
-        this.leftScoreElement = new TextElement('^ total = 0', Board.canvas.clientLeft + 162, 555, 265, 90, 'gray', Board.textColor);
+        this.leftScoreElement = new labelElement('^ total = 0', Board.canvas.clientLeft + 162, 555, 265, 90, 'gray', Board.textColor);
         UI.RenderText(this.leftScoreElement);
         this.rollButton = new ButtonElement(210, 9, 175, 75);
         ontouch(Board.canvas, (touchobj, phase, distX, distY) => {
@@ -137,17 +137,17 @@ class Board {
         this.evaluatePossibleScores();
         switch (Dice.rollCount) {
             case 1:
-                this.rollButton.setText('Roll Again');
+                this.rollButton.text = 'Roll Again';
                 break;
             case 2:
-                this.rollButton.setText('Last Roll');
+                this.rollButton.text = 'Last Roll';
                 break;
             case 3:
                 this.rollButton.disabled = true;
-                this.rollButton.setText('Select Score');
+                this.rollButton.text = 'Select Score';
                 break;
             default:
-                this.rollButton.setText('Roll Dice');
+                this.rollButton.text = 'Roll Dice';
                 Dice.rollCount = 0;
         }
     }
@@ -162,7 +162,7 @@ class Board {
         });
     }
     resetTurn() {
-        this.rollButton.setBackgroundColor(Board.currentPlayer.color);
+        this.rollButton.backgroundColor = Board.currentPlayer.color;
         this.gameOver = this.isGameComplete();
         this.rollButton.disabled = false;
         Board.Dice.resetTurn();
@@ -186,7 +186,7 @@ class Board {
             }
         }
         else {
-            this.rollButton.setText('Roll Dice');
+            this.rollButton.text = 'Roll Dice';
             this.clearPossibleScores();
             this.setLeftScores();
             this.setRightScores();
@@ -205,26 +205,27 @@ class Board {
         this.leftTotal = 0;
         this.rightTotal = 0;
         this.leftScoreElement.text = '^ total = 0';
-        UI.RenderText(this.leftScoreElement);
         App.players.forEach((player) => {
             player.resetScore();
         });
         Board.currentPlayer = App.players[0];
-        this.rollButton.upDate('Roll Dice', Board.currentPlayer.color);
+        this.rollButton.backgroundColor = Board.currentPlayer.color;
+        this.rollButton.text = 'Roll Dice';
         this.rollButton.disabled = false;
     }
     showFinalScore(winner) {
         var winMsg;
         if (winner !== Board.thisPlayer) {
             app.sounds.play(app.sounds.nooo);
-            winMsg = ' wins with ';
+            winMsg = winner.name + ' wins!';
         }
         else {
             app.sounds.play(app.sounds.woohoo);
-            winMsg = ' win with ';
+            winMsg = 'You won!';
         }
-        this.rollButton.upDate(winMsg, 'black');
-        app.logLine(winner.name + winMsg + winner.score, app.scoreMsg);
+        this.rollButton.backgroundColor = 'black';
+        this.rollButton.text = winMsg;
+        app.logLine(winMsg + ' ' + winner.score, app.scoreMsg);
         Board.currentPlayer = App.players[App.myIndex];
     }
     isGameComplete() {
@@ -254,7 +255,6 @@ class Board {
         }
         if (this.leftTotal > 62) {
             this.leftScoreElement.text = '^ total = ' + this.leftTotal.toString() + ' + 35';
-            UI.RenderText(this.leftScoreElement);
             let bonusWinner;
             let highleft = 0;
             App.players.forEach(function (thisPlayer) {
@@ -271,7 +271,6 @@ class Board {
         if (this.leftTotal === 0) {
             this.leftScoreElement.text = '^ total = 0';
         }
-        UI.RenderText(this.leftScoreElement);
     }
     setRightScores() {
         let val;
@@ -287,7 +286,7 @@ class Board {
         }
     }
 }
-Board.myIndex = 1;
+Board.myIndex = 0;
 Board.playerScoreElements = new Array();
 Board.scoreHeight = 95;
 Board.scoreWidth = 100;

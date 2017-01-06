@@ -17,15 +17,15 @@ class ScoreElement {
         this.isLeftHanded = isLeftHanded;
         if (isLeftHanded) {
             this.path = PathBuilder.BuildLeftScore(left, top);
-            this.textLabel1 = new TextElement(this.line1, this.x + 55, this.y + 40, 85, 30, this.color, Board.textColor);
-            this.textLabel2 = new TextElement(this.line2, this.x + 55, this.y + 70, 85, 30, this.color, Board.textColor);
-            this.scoreLable = new TextElement('', this.x + 132, this.y + 27, 30, 30, this.color, Board.textColor);
+            this.textLabel1 = new labelElement(this.line1, this.x + 55, this.y + 40, 85, 30, this.color, Board.textColor);
+            this.textLabel2 = new labelElement(this.line2, this.x + 55, this.y + 70, 85, 30, this.color, Board.textColor);
+            this.scoreLable = new labelElement('', this.x + 132, this.y + 27, 30, 30, this.color, Board.textColor);
         }
         else {
             this.path = PathBuilder.BuildRightScore(left, top);
-            this.textLabel1 = new TextElement(this.line1, this.x + 110, this.y + 40, 85, 30, this.color, Board.textColor);
-            this.textLabel2 = new TextElement(this.line2, this.x + 110, this.y + 70, 85, 30, this.color, Board.textColor);
-            this.scoreLable = new TextElement('', this.x + 28, this.y + 77, 30, 30, this.color, Board.textColor);
+            this.textLabel1 = new labelElement(this.line1, this.x + 110, this.y + 40, 85, 30, this.color, Board.textColor);
+            this.textLabel2 = new labelElement(this.line2, this.x + 110, this.y + 70, 85, 30, this.color, Board.textColor);
+            this.scoreLable = new labelElement('', this.x + 28, this.y + 77, 30, 30, this.color, Board.textColor);
         }
     }
     setOwned(value) {
@@ -186,7 +186,6 @@ class ScoreElement {
         }
         this.scoreLable.backgroundColor = scoreBoxColor;
         this.scoreLable.text = scoretext;
-        UI.RenderText(this.scoreLable);
     }
 }
 ScoreElement.zero = '';

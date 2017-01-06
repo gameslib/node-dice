@@ -29,7 +29,6 @@ class App {
             result = this.lastScoreMessage;
         }
         this.infoElement.text = result;
-        UI.RenderText(this.infoElement);
     }
     static setPlayers(data) {
         App.players = [];

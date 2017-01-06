@@ -14,7 +14,7 @@ class App {
   possible: Possible
   game: Board
   numberOfDie: number = 5
-  infoElement: TextElement
+  infoElement: labelElement
   // flags()
   playSounds: boolean = true
   lastScoreMessage: string = ''
@@ -42,7 +42,6 @@ class App {
       result = this.lastScoreMessage
     }
     this.infoElement.text = result
-    UI.RenderText(this.infoElement)
   }
 
   static setPlayers(data: any) {

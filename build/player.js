@@ -12,12 +12,10 @@ class Player {
         this.score += value;
         this.element.textColor = this.color;
         this.element.text = this.name + ' = ' + this.score;
-        UI.RenderText(this.element);
     }
     resetScore() {
         this.score = 0;
         this.element.textColor = this.color;
         this.element.text = this.name;
-        UI.RenderText(this.element);
     }
 }
