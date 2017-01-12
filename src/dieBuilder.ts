@@ -1,5 +1,5 @@
 
-class DieFaceBuilder {
+class DieBuilder {
 
   buildDieFaces(size: number) {
     var size = size

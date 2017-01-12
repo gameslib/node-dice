@@ -10,12 +10,12 @@ class Dice {
 
     constructor() {
         Dice.evaluator = new DiceEvaluator()
-        let dieFaceBuilder = new DieFaceBuilder
+        let dieFaceBuilder = new DieBuilder
         dieFaceBuilder.buildDieFaces(80)
         this.die = new Array()
         for (var i = 0; i < 5; i++) {
           var x = 81 + (i * 90)
-            this.die.push(new Die(i, x, 95, 82))
+            this.die.push(new Die(i, {left: x, top: 95}, 82))
         }
         this.resetTurn()
     }

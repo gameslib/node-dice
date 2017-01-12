@@ -4,7 +4,7 @@ class Player {
   name: string
   color: any
   score: number
-  element: labelElement
+  element: Label
   isCurrent: boolean
   rollTimer: any
   lastScore: string

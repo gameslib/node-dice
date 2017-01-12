@@ -77,7 +77,7 @@ class Possible  {
         var hits = 0
         var target = id + 1
         for (var i = 0; i < 5; i++) {
-            var val = (Board.Dice.die[i]).value
+            var val = (App.dice.die[i]).value
             if (val === target) {
                 hits += 1
             }

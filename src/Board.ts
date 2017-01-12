@@ -1,50 +1,58 @@
 //TODO make possible-steal box the color of the currentPlayer
 //TODO rotate resize??
 //TODO select a name from list of previously used names
-
+//TODO try ... Path2D.addPath(b, transform) for ScoreElement path
 class Board {
-  static myIndex: number = 0
-  static playerScoreElements: labelElement[] = new Array()
-  static Surface: CanvasRenderingContext2D
-  static canvas: HTMLCanvasElement
-  static scoreHeight: number = 95
-  static scoreWidth: number = 100
-  static scoreElement: ScoreElement[] = new Array
-  unclaimedColor: string = 'black'
+
+  static textColor: string
   myTurn: Boolean = false
   gameOver: boolean = false
-  rollButton: ButtonElement
+  rollButton: Button
   leftBonus: number = 0
   yahtzBonus: number = 0
   leftTotal: number = 0
   rightTotal: number = 0
-  leftScoreElement: labelElement
-  static Dice: Dice
-  static currentPlayer: Player
-  static thisPlayer: Player
-  static possible: Possible
-  static textColor: string
+  leftScoreElement: Label
+  // singlton instance
+  private static instance: Board;
 
-  constructor() {
+  static getInstance() {
+        if (!Board.instance) {
+            Board.instance = new Board();
+        }
+        return Board.instance;
+  }
+
+  private constructor() {
     app.sounds = new Sounds()
     App.thisID = App.generateID()
-    Board.possible = new Possible()
-    Board.canvas = document.getElementById('drawing-surface') as HTMLCanvasElement
-    Board.canvas.offsetParent
-    Board.Surface = Board.canvas.getContext('2d')
-    Board.Surface.lineWidth = 1;
+    App.playerScoreElements = new Array()
+    ScoreElement.possible = new Possible()
+    let canvas = document.getElementById('drawing-surface') as HTMLCanvasElement
+    surface = canvas.getContext('2d')
+    surface.lineWidth = 1;
     Board.textColor = 'snow'
-    Board.Surface.strokeStyle = 'snow';
-    Board.Surface.fillStyle = 'snow'
-    Board.Surface.font = "small-caps 18px arial"//Segoe UI" //consolas"//arial"
-    Board.Surface.textAlign = 'center'
-    Board.Surface.fillRect(0, 0, Board.canvas.width, Board.canvas.height)
-    app.infoElement = new labelElement('', 300, 600, 590, 40, Board.textColor, 'black' )
+    surface.strokeStyle = 'snow';
+    surface.fillStyle = 'snow'
+    surface.font = "small-caps 18px arial"//Segoe UI" //consolas"//arial"
+    surface.textAlign = 'center'
+    surface.shadowBlur = 10
+    surface.shadowOffsetX = 3
+    surface.shadowOffsetY = 3
+    surface.fillRect(0, 0, canvas.width, canvas.height)
+    app.infoElement = new Label('', {left: 300, top: 600}, {width: 590, height: 35}, Board.textColor, 'black' )
     UI.buildPlayerElements()
-    var person = prompt("Please enter your name", "Me")
-    App.players[0] = (new Player(App.thisID, person, 'red', 0, Board.playerScoreElements[0]))
-    Board.thisPlayer = App.players[0]
-    Board.currentPlayer = Board.thisPlayer
+    var person = 'me'//prompt("Please enter your name", "Me")
+    App.players[0] = (new Player(App.thisID, person, 'red', 0, App.playerScoreElements[0]))
+    App.thisPlayer = App.players[0]
+    App.currentPlayer = App.thisPlayer
+
+    window.addEventListener("resize", OnResizeCalled, false);
+
+    function OnResizeCalled() {
+      this.canvas.style.width = window.innerWidth + 'px';
+      this.canvas.style.height = window.innerHeight + 'px';
+    }
 
     App.socketSend('loggedIn', {
       'id': App.thisID,
@@ -63,45 +71,47 @@ class Board {
           this.rollTheDice(data)
           break;
         case 'updateDie': //  data = { 'dieNumber': index }
-          Board.Dice.die[data.dieNumber].clicked()
+          App.dice.die[data.dieNumber].clicked()
           break;
         case 'updateScore': // data = { 'scoreNumber': elemIndex }
-          Board.scoreElement[parseInt(data.scoreNumber, 10)].clicked()
+          UI.scoreElement[parseInt(data.scoreNumber, 10)].clicked()
           break;
         case 'resetTurn': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
-          Board.currentPlayer = App.players[data.currentPlayerIndex]
+          App.currentPlayer = App.players[data.currentPlayerIndex]
           this.resetTurn()
           break;
         case 'resetGame': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
-          Board.currentPlayer = App.players[data.currentPlayerIndex]
+          App.currentPlayer = App.players[data.currentPlayerIndex]
           this.resetGame()
           break;
         default:
           break;
       }
     }
-    UI.buildScoreElements()
-    Board.Dice = new Dice()
-    this.leftScoreElement = new labelElement('^ total = 0', Board.canvas.clientLeft + 162, 555, 265, 90, 'gray', Board.textColor)
-    UI.RenderText(this.leftScoreElement)
-    this.rollButton = new ButtonElement(210, 9, 175, 75)
+    let scoreHeight = 95
+    let scoreWidth = 150
+    UI.buildScoreElements(180, canvas.clientLeft + 30, scoreWidth, scoreHeight)
+    App.dice = new Dice()
+    this.leftScoreElement = new Label('^ total = 0', {left: canvas.clientLeft + 162, top: 545}, {width: 265, height: 90}, 'gray', Board.textColor)
+    this.leftScoreElement.render()
+    this.rollButton = new Button({left: 210, top: 9}, {width: 175, height: 75})
 
-    ontouch(Board.canvas,  (touchobj: any, phase: string, distX: number, distY: number) => {
+    ontouch(canvas,  (touchobj: any, phase: string, distX: number, distY: number) => {
       if (phase !== 'start') { return }
-      this.onMouseDown(touchobj)
+      this.onMouseDown(touchobj, canvas)
     })
     this.resetGame()
   }
 
-  onMouseDown(event: MouseEvent) {
-    let x = event.pageX - Board.canvas.offsetLeft
-    let y = event.pageY - Board.canvas.offsetTop
-    if (Board.currentPlayer === Board.thisPlayer) {
+  onMouseDown(event: MouseEvent, canvas: HTMLCanvasElement) {
+    let x = event.pageX - canvas.offsetLeft
+    let y = event.pageY - canvas.offsetTop
+    if (App.currentPlayer === App.thisPlayer) {
 
       // score clicked?
-      for (let index = 0; index < Board.scoreElement.length; index++) {
-        if (Board.scoreElement[index].hitTest(x, y)) {
-          let thisScoreElement: ScoreElement = Board.scoreElement[index]
+      for (let index = 0; index < UI.scoreElement.length; index++) {
+        if (UI.scoreElement[index].ui.hitTest(x, y)) {
+          let thisScoreElement: ScoreElement = UI.scoreElement[index]
           App.socketSend('scoreClicked', {
               'id': App.thisID,
               'scoreNumber': index
@@ -116,8 +126,8 @@ class Board {
       }
       // die clicked?
       for (let i = 0; i < 5; i++) {
-        if (Board.Dice.die[i].hitTest(x, y)) {
-          Board.Dice.die[i].clicked()
+        if (App.dice.die[i].hitTest(x, y)) {
+          App.dice.die[i].clicked()
           App.socketSend('dieClicked', { 'dieNumber': i });
         }
       }
@@ -150,13 +160,13 @@ class Board {
     }
     // if it's us ...
     if (data.id === App.thisID) {
-      Board.Dice.roll()
+      App.dice.roll()
       App.socketSend('playerRolled', {
         'id': App.thisID,
-        'dice': Board.Dice.die
+        'dice': App.dice.die
       });
     } else {
-      Board.Dice.roll(data.dice)
+      App.dice.roll(data.dice)
     }
 
     this.evaluatePossibleScores()
@@ -178,22 +188,22 @@ class Board {
   }
 
   clearPossibleScores() {
-    Board.scoreElement.forEach(function (thisElement: any) {
+    UI.scoreElement.forEach(function (thisElement: any) {
       thisElement.clearPossible()
     })
   }
 
   evaluatePossibleScores() {
-    Board.scoreElement.forEach(function (thisElement: any) {
+    UI.scoreElement.forEach(function (thisElement: any) {
       thisElement.setPossible()
     })
   }
 
   resetTurn() {
-    this.rollButton.backgroundColor = Board.currentPlayer.color
+    this.rollButton.color = App.currentPlayer.color
     this.gameOver = this.isGameComplete()
     this.rollButton.disabled = false
-    Board.Dice.resetTurn()
+    App.dice.resetTurn()
     if (this.gameOver) {
       this.clearPossibleScores()
       this.setLeftScores()
@@ -209,7 +219,7 @@ class Board {
         })
         this.showFinalScore(winner)
       } else {
-        this.showFinalScore(App.players[Board.myIndex])
+        this.showFinalScore(App.players[App.myIndex])
       }
     }
     else {
@@ -221,9 +231,9 @@ class Board {
   }
 
   resetGame() {
-    Board.Dice = new Dice()
-    Board.Dice.resetGame()
-    Board.scoreElement.forEach(function (thisElement: ScoreElement) {
+    App.dice = new Dice()
+    App.dice.resetGame()
+    UI.scoreElement.forEach(function (thisElement: ScoreElement) {
       thisElement.reset()
     })
     UI.resetPlayersScoreElements()
@@ -236,30 +246,30 @@ class Board {
     App.players.forEach((player: Player) => {
       player.resetScore()
     })
-    Board.currentPlayer = App.players[0]
-    this.rollButton.backgroundColor = Board.currentPlayer.color
+    App.currentPlayer = App.players[0]
+    this.rollButton.color = App.currentPlayer.color
     this.rollButton.text = 'Roll Dice'
     this.rollButton.disabled = false
   }
 
   showFinalScore(winner: Player) {
     var winMsg: string
-    if (winner !== Board.thisPlayer) {
+    if (winner !== App.thisPlayer) {
       app.sounds.play(app.sounds.nooo)
       winMsg = winner.name + ' wins!'
     } else {
       app.sounds.play(app.sounds.woohoo)
       winMsg = 'You won!'
     }
-    this.rollButton.backgroundColor = 'black'
+    this.rollButton.color = 'black'
     this.rollButton.text = winMsg
     app.logLine(winMsg + ' ' + winner.score, app.scoreMsg)
-    Board.currentPlayer = App.players[App.myIndex]
+    App.currentPlayer = App.players[App.myIndex]
   }
 
   isGameComplete() {
     let result = true
-    Board.scoreElement.forEach(function (thisElement: ScoreElement) {
+    UI.scoreElement.forEach(function (thisElement: ScoreElement) {
       if (!thisElement.owned) {
         result = false
       }
@@ -276,12 +286,12 @@ class Board {
 
     var val: number
     for (var i = 0; i < 6; i++) {
-      val = Board.scoreElement[i].finalValue
+      val = UI.scoreElement[i].finalValue
       if (val > 0) {
         this.leftTotal += val
-        Board.scoreElement[i].owner.addScore(val)
-        if (Board.scoreElement[i].hasFiveOfaKind && (Board.Dice.fiveOfaKindCount > 1)) {
-          Board.scoreElement[i].owner.addScore(100)
+        UI.scoreElement[i].owner.addScore(val)
+        if (UI.scoreElement[i].hasFiveOfaKind && (App.dice.fiveOfaKindCount > 1)) {
+          UI.scoreElement[i].owner.addScore(100)
         }
       }
     }
@@ -306,13 +316,13 @@ class Board {
 
   setRightScores() {
     let val: number
-    let len = Board.scoreElement.length
+    let len = UI.scoreElement.length
     for (var i = 6; i < len; i++) {
-      val = Board.scoreElement[i].finalValue
+      val = UI.scoreElement[i].finalValue
       if (val > 0) {
-        Board.scoreElement[i].owner.addScore(val)
-        if (Board.scoreElement[i].hasFiveOfaKind && (Board.Dice.fiveOfaKindCount > 1) && (i !== UI.FiveOfaKind)) {
-          Board.scoreElement[i].owner.addScore(100)
+        UI.scoreElement[i].owner.addScore(val)
+        if (UI.scoreElement[i].hasFiveOfaKind && (App.dice.fiveOfaKindCount > 1) && (i !== UI.FiveOfaKind)) {
+          UI.scoreElement[i].owner.addScore(100)
         }
       }
     }

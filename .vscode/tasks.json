@@ -1,14 +1,28 @@
 {
-  // See https://go.microsoft.com/fwlink/?LinkId=733558
-  // for the documentation about the tasks.json format
   "version": "0.1.0",
-  "isWatching": true,
-  "command": "tsc --skipLibCheck -w",
+  "command": "cmd",
   "isShellCommand": true,
+  "showOutput": "always",
   "args": [
-    "-p",
-    "."
+    "/C"
   ],
-  "showOutput": "silent",
-  "problemMatcher": "$tsc"
+  "tasks": [
+    {
+      "taskName": "Build App",
+      "suppressTaskName": true,
+      "isBuildCommand": true,
+      "args": [
+        "tsc -p ."
+      ]
+    },
+    {
+      "taskName": "Open Browser",
+      "suppressTaskName": true,
+      "isBuildCommand": true,
+      "args": [
+        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe ",
+        "${file}"
+      ]
+    }
+  ]
 }

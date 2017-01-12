@@ -1,11 +1,10 @@
 class Die {
-    constructor(index, x, y, size) {
+    constructor(index, location, size) {
         this.size = 80;
         this.value = 1;
         this.lastValue = 1;
         this.index = index;
-        this.x = x;
-        this.y = y;
+        this.location = location;
         this.size = size;
         this.value = 1;
         this.render();
@@ -18,20 +17,20 @@ class Die {
         }
     }
     hitTest(x, y) {
-        if (x < this.x || x > this.x + this.size) {
+        if (x < this.location.left || x > this.location.left + this.size) {
             return false;
         }
-        if (y < this.y || y > this.y + this.size) {
+        if (y < this.location.top || y > this.location.top + this.size) {
             return false;
         }
         return true;
     }
     render() {
         if (this.frozen) {
-            Board.Surface.putImageData(Die.frozenFaces[this.value], this.x, this.y);
+            surface.putImageData(Die.frozenFaces[this.value], this.location.left, this.location.top);
         }
         else {
-            Board.Surface.putImageData(Die.faces[this.value], this.x, this.y);
+            surface.putImageData(Die.faces[this.value], this.location.left, this.location.top);
         }
     }
     reset() {

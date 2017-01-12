@@ -29,7 +29,7 @@ class DiceEvaluator {
     this.countOfDieFaceValue = [0, 0, 0, 0, 0, 0, 0]
     this.sumOfAllDie = 0
     for (var i = 0; i < 5; i++) {
-      var val = Board.Dice.die[i].value
+      var val = App.dice.die[i].value
       this.sumOfAllDie += val
       if (val > 0) {
         this.countOfDieFaceValue[val] += 1
@@ -37,7 +37,7 @@ class DiceEvaluator {
     }
     this.evaluateFaceValues()
     this.setScoringFlags()
-    Board.Dice.isFiveOfaKind = this.testForYatzy()
+    App.dice.isFiveOfaKind = this.testForYatzy()
   }
 
   setScoringFlags() {
@@ -91,7 +91,7 @@ class DiceEvaluator {
 
   testForYatzy() {
     if (this.hasFiveOfaKind) {
-      if (Board.Dice.fiveOfaKindWasSacrificed) {
+      if (App.dice.fiveOfaKindWasSacrificed) {
         app.sounds.play(app.sounds.dohh)
       }
       else {
@@ -103,7 +103,7 @@ class DiceEvaluator {
   }
 
   evaluateFaceValues() {
-    var die = Board.Dice.die
+    var die = App.dice.die
     this.straightsMask = 0
     for (var thisValue = 1; thisValue <= 6; thisValue++) {
       if (die[0].value === thisValue ||

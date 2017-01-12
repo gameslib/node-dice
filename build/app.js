@@ -1,5 +1,6 @@
 const HOST = location.origin.replace(/^http/, 'ws');
 const socket = new WebSocket(HOST);
+var surface;
 class App {
     constructor() {
         this.numberOfDie = 5;
@@ -34,15 +35,15 @@ class App {
         App.players = [];
         let index = 0;
         Object.keys(data).forEach(function (prop) {
-            App.players[index] = (new Player(data[prop].id, data[prop].name, data[prop].color, 0, Board.playerScoreElements[index]));
+            App.players[index] = (new Player(data[prop].id, data[prop].name, data[prop].color, 0, App.playerScoreElements[index]));
             if (App.thisID === data[prop].id) {
-                Board.thisPlayer = App.players[index];
+                App.thisPlayer = App.players[index];
                 App.myIndex = index;
             }
             index += 1;
         });
-        Board.thisPlayer = App.players[App.myIndex];
-        Board.currentPlayer = App.players[0];
+        App.thisPlayer = App.players[App.myIndex];
+        App.currentPlayer = App.players[0];
     }
     static generateID() {
         let chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -59,19 +60,22 @@ App.myIndex = 0;
 App.players = new Array;
 var app = new App();
 modules.load([
-    'UIElements',
     'board',
-    'die',
     'dice',
-    'dieFaceBuilder',
-    'pathBuilder',
     'diceEvaluator',
+    'die',
+    'dieBuilder',
+    'pathBuilder',
     'player',
     'possible',
+    'uiScoreElement',
     'scoreElement',
     'sounds',
-    'touch'
+    'touch',
+    'uiButton',
+    'uiLabel',
+    'uiElement'
 ]);
 window.onload = function () {
-    var myBoard = new Board();
+    var board = Board.getInstance();
 };
