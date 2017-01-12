@@ -41,7 +41,7 @@ class UIScoreElement implements iUIElement {
   }
 
   hitTest(x: number, y: number) {
-    return surface.isPointInPath(this.path, x, y); // New
+    return surface.isPointInPath(this.path, x, y)
   }
 
   render() {
@@ -54,7 +54,6 @@ class UIScoreElement implements iUIElement {
   renderValue(scoretext: string) {
     let scoreBoxColor = (this.available) ? 'Green' : this.color
     if (scoretext === ScoreElement.zero) {scoreBoxColor = this.color}
-    //let sl = this.children[2] as Label
     this.children[2].color = scoreBoxColor
     this.children[2].text = scoretext
   }
