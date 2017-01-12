@@ -1,4 +1,4 @@
-
+//
 class Button implements iUIElement {
 
   get text(): string {
