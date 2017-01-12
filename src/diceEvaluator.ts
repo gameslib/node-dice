@@ -17,7 +17,6 @@ class DiceEvaluator {
   hasTwoPair: Boolean = false
   hasTrips: Boolean = false
   hasQuads: Boolean = false
-  hasFiveOkind: Boolean = false
   hasFiveOfaKind: Boolean = false
   hasTripsOrBetter: Boolean = false
   hasFullHouse: Boolean = false
@@ -37,7 +36,7 @@ class DiceEvaluator {
     }
     this.evaluateFaceValues()
     this.setScoringFlags()
-    App.dice.isFiveOfaKind = this.testForYatzy()
+    App.dice.isFiveOfaKind = this.testForFiveOfaKind()
   }
 
   setScoringFlags() {
@@ -45,7 +44,6 @@ class DiceEvaluator {
     this.hasTwoPair = false
     this.hasTrips = false
     this.hasQuads = false
-    this.hasFiveOkind = false
     this.hasFiveOfaKind = false
     this.hasTripsOrBetter = false
     this.hasFullHouse = false
@@ -89,7 +87,7 @@ class DiceEvaluator {
       )
   }
 
-  testForYatzy() {
+  testForFiveOfaKind() {
     if (this.hasFiveOfaKind) {
       if (App.dice.fiveOfaKindWasSacrificed) {
         app.sounds.play(app.sounds.dohh)

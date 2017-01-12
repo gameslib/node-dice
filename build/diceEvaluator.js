@@ -14,7 +14,6 @@ class DiceEvaluator {
         this.hasTwoPair = false;
         this.hasTrips = false;
         this.hasQuads = false;
-        this.hasFiveOkind = false;
         this.hasFiveOfaKind = false;
         this.hasTripsOrBetter = false;
         this.hasFullHouse = false;
@@ -34,14 +33,13 @@ class DiceEvaluator {
         }
         this.evaluateFaceValues();
         this.setScoringFlags();
-        App.dice.isFiveOfaKind = this.testForYatzy();
+        App.dice.isFiveOfaKind = this.testForFiveOfaKind();
     }
     setScoringFlags() {
         this.hasPair = false;
         this.hasTwoPair = false;
         this.hasTrips = false;
         this.hasQuads = false;
-        this.hasFiveOkind = false;
         this.hasFiveOfaKind = false;
         this.hasTripsOrBetter = false;
         this.hasFullHouse = false;
@@ -76,7 +74,7 @@ class DiceEvaluator {
             (mask & this.smallMid) === this.smallMid ||
             (mask & this.smallHigh) === this.smallHigh);
     }
-    testForYatzy() {
+    testForFiveOfaKind() {
         if (this.hasFiveOfaKind) {
             if (App.dice.fiveOfaKindWasSacrificed) {
                 app.sounds.play(app.sounds.dohh);
