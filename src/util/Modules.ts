@@ -1,23 +1,24 @@
 /**
- * Modules ... simple module loader class
+ * Modules ... simple module-loader class
  * This class is used to automate the loading of
  * client side javascript 'modules' from the local file system.
  *
  * USAGE ...
  * Place a single 'script' tag in the head of your index.html file ...
  *
- *       <script src="./build/Modules.js" data-boot='App'></script>
+ *    <script src="./build/modules.js" data-bootLoader='App'></script>
  *
- * The 'src=' attribute must point to the location of the 'Modules.js' file,
+ * The 'src=' attribute must point to the location of the 'modules.js' file,
  * relative to the location of the index.html file it is called from.
  *
- * The 'data-boot=' attribute holds the name of a javascript
+ * The 'data-bootLoader=' attribute holds the name of a javascript
  * file you wish to boot from. This 'boot' file will 'load' all other
- * required script files using ... Module.load('myFile')
+ * required script files using ... Module.load(['myFile'.'util/file2',...])
+ * Note the parameter is an array of file names ...
+ * A (.js) extension will automatically be appended to each name in the array.
  *
  * NOTE: Please see Bottom of this file for more info.
  */
-//TODO: resolve baseURL from the src attribute of the 'Modules.js' <script> tag.
 class Modules {
   scriptElements: any = {}
   baseURL = 'build/'
@@ -97,9 +98,9 @@ class Modules {
       }
     }
   }
-
+  // you can call this to set/reset the base URL
   setBaseURL(url: string) {
-    //  baseURL defaults to 'scripts/'
+    // baseURL defaults to 'build/'
     this.baseURL = url || 'build/'
   }
 }
@@ -108,5 +109,6 @@ class Modules {
 const modules = new Modules()
 
 // Now, we 'boot-up' a start-up script that was named
-// in our single script tag ... data-boot='App'
+// in our single script tag ... data-bootLoader='App'
+// We assume this script will load all other required modules.
 modules.load(Modules.BootName)
