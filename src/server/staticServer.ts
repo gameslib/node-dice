@@ -73,8 +73,8 @@ socketServer.on('connection', function (client: any) {
       case 'loggedIn': // data = {'id': id,'name': person}
         numberOfPlayers = Object.keys(players).length
         players[numberOfPlayers] = { id: d.data.id, name: d.data.name, color: playerColors[numberOfPlayers] }
-        numberOfPlayers = Object.keys(players).length
         console.log('Player name: ' + d.data.name + '  id: ' + d.data.id + '  color: ' + playerColors[numberOfPlayers] + ' signed in.    Number of players = ' + numberOfPlayers)
+        numberOfPlayers = Object.keys(players).length
         // sends this to every connected player including this new one
         broadcastAll(client, 'setPlayers', players)
         broadcastAll(client, 'resetGame', { currentPlayerIndex: 0 })

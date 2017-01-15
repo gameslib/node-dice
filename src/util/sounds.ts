@@ -14,14 +14,16 @@ class Sounds {
     this.heehee = document.getElementById('heheSound') as HTMLAudioElement
     this.roll = document.getElementById('rollSound') as HTMLAudioElement
     this.select = document.getElementById('selectSound') as HTMLAudioElement
-    this.woohoo = document.getElementById('woohooSound')as HTMLAudioElement
+    this.woohoo = document.getElementById('woohooSound') as HTMLAudioElement
     this.nooo = document.getElementById('noooSound') as HTMLAudioElement
     this.SilkWearin = document.getElementById('YaSilkWearinSound') as HTMLAudioElement
   }
 
   play(sound: HTMLAudioElement) {
     if (app.playSounds) {
-      sound.play()
+      sound.play().catch(function (e:any) {
+        //console.log('There was an error', e);
+      });
     }
   }
 }

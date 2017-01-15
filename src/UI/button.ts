@@ -1,6 +1,6 @@
-//
+//TODO: button not locking after turn
 class Button implements iUIElement {
-
+  id: number
   get text(): string {
     return this.children[0].text
   }
@@ -21,7 +21,6 @@ class Button implements iUIElement {
   location: iLocation
   size: iSize
   path: Path2D
-  parent: iUIElement
   children: iUIElement[] = []
   disabled: boolean = false
 
@@ -29,16 +28,31 @@ class Button implements iUIElement {
   textLabel: Label
 
   constructor(location: iLocation, size: iSize) {
-    this.children.push(new Label('Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', Board.textColor))
+    this.children.push(new Label('Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor))
     this.location = location
     this.size = size
     this.buildPath()
     this.firstPass = true
     this.render()
+    UI.clickables.push(this)
+
+    Events.on('RollUpdate', (data: { text: string, color: string, disabled: boolean }) => {
+      this.disabled = data.disabled
+      this._backgroundColor = data.color
+      this.children[0].color = data.color
+      this.text = data.text
+    })
+
   }
 
   buildPath() {
     this.path = PathBuilder.BuildRectangle(this.location, this.size, 10)
+  }
+
+  clicked(broadcast: boolean) {
+    if (!this.disabled) {
+      Events.fire('RollButtonClicked', {})
+    }
   }
 
   hitTest(x: number, y: number) {
@@ -52,7 +66,7 @@ class Button implements iUIElement {
     }
     surface.fillStyle = this._backgroundColor
     surface.fill(this.path);
-    surface.fillStyle = Board.textColor
+    surface.fillStyle = UI.textColor
     if (this.firstPass) {
       this.firstPass = false
       surface.shadowColor = 'transparent'

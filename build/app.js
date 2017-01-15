@@ -13,7 +13,6 @@ class App {
     static socketSend(name, data) {
         if (socket) {
             var msg = JSON.stringify({ name: name, data: data });
-            console.log('socket Sent ' + name);
             socket.send(msg);
         }
         else {
@@ -32,6 +31,8 @@ class App {
         this.infoElement.text = result;
     }
     static setPlayers(data) {
+        console.log('setPlayer: ' + data);
+        console.info(data);
         App.players = [];
         let index = 0;
         Object.keys(data).forEach(function (prop) {
@@ -60,22 +61,23 @@ App.myIndex = 0;
 App.players = new Array;
 var app = new App();
 modules.load([
-    'board',
+    'game',
     'dice',
     'diceEvaluator',
-    'die',
-    'dieBuilder',
-    'pathBuilder',
     'player',
     'possible',
-    'uiScoreElement',
-    'scoreElement',
-    'sounds',
-    'touch',
-    'uiButton',
-    'uiLabel',
-    'uiElement'
+    'scoreComponent',
+    'UI/button',
+    'UI/die.js',
+    'UI/dieBuilder',
+    'UI/label',
+    'UI/pathBuilder',
+    'UI/scoreElement',
+    'UI/ui',
+    'util/events',
+    'util/sounds',
+    'util/touch'
 ]);
 window.onload = function () {
-    var board = Board.getInstance();
+    var game = Game.getInstance();
 };

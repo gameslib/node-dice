@@ -1,5 +1,5 @@
 class Label {
-    constructor(text, location, size, color, textColor) {
+    constructor(text, location, size, color = 'black', textColor = UI.textColor) {
         this.children = [];
         this.textLocation = { left: 0, top: 0 };
         this.location = location;
@@ -25,6 +25,8 @@ class Label {
     }
     buildPath() {
         return new Path2D;
+    }
+    clicked(broadcast) {
     }
     hitTest(x, y) {
         return false;

@@ -1,4 +1,10 @@
 class Possible {
+    static getInstance() {
+        if (!Possible.instance) {
+            Possible.instance = new Possible();
+        }
+        return Possible.instance;
+    }
     evaluate(id) {
         if (id < 6) {
             return this.evaluateNumbers(id);
@@ -8,7 +14,7 @@ class Possible {
         }
     }
     evaluateCommon(id) {
-        if (id === UI.FiveOfaKind) {
+        if (id === Possible.FiveOfaKind) {
             if (Dice.evaluator.hasFiveOfaKind) {
                 return 50;
             }
@@ -16,7 +22,7 @@ class Possible {
                 return 0;
             }
         }
-        else if (id === UI.SmallStraight) {
+        else if (id === Possible.SmallStraight) {
             if (Dice.evaluator.hasSmallStr) {
                 return 30;
             }
@@ -24,7 +30,7 @@ class Possible {
                 return 0;
             }
         }
-        else if (id === UI.LargeStraight) {
+        else if (id === Possible.LargeStraight) {
             if (Dice.evaluator.hasLargeStr) {
                 return 40;
             }
@@ -32,7 +38,7 @@ class Possible {
                 return 0;
             }
         }
-        else if (id === UI.House) {
+        else if (id === Possible.House) {
             if (Dice.evaluator.hasFullHouse) {
                 return 25;
             }
@@ -40,7 +46,7 @@ class Possible {
                 return 0;
             }
         }
-        else if (id === UI.FourOfaKind) {
+        else if (id === Possible.FourOfaKind) {
             if (Dice.evaluator.hasQuads || Dice.evaluator.hasFiveOfaKind) {
                 return Dice.evaluator.sumOfAllDie;
             }
@@ -48,7 +54,7 @@ class Possible {
                 return 0;
             }
         }
-        else if (id === UI.ThreeOfaKind) {
+        else if (id === Possible.ThreeOfaKind) {
             if (Dice.evaluator.hasTrips || Dice.evaluator.hasQuads || Dice.evaluator.hasFiveOfaKind) {
                 return Dice.evaluator.sumOfAllDie;
             }
@@ -56,7 +62,7 @@ class Possible {
                 return 0;
             }
         }
-        else if (id === UI.Chance) {
+        else if (id === Possible.Chance) {
             return Dice.evaluator.sumOfAllDie;
         }
         else {
@@ -75,3 +81,10 @@ class Possible {
         return target * hits;
     }
 }
+Possible.ThreeOfaKind = 6;
+Possible.FourOfaKind = 7;
+Possible.SmallStraight = 8;
+Possible.LargeStraight = 9;
+Possible.House = 10;
+Possible.FiveOfaKind = 11;
+Possible.Chance = 12;

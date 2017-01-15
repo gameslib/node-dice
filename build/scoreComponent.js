@@ -1,46 +1,52 @@
-class ScoreElement {
-    constructor(id, name1, name2, location, size, isLeftHanded) {
-        this.ui = null;
-        this.score = '00';
+class ScoreComponent {
+    constructor(id, name1, name2) {
+        this.available = false;
         this.owned = false;
+        this.baseColor = 'black';
         this.id = id;
+        this.name = name1 + ' ' + name2;
         this.finalValue = 0;
         this.possibleValue = 0;
         this.scoringDieset = [0, 0, 0, 0, 0];
-        let textSize = { width: 85, height: 30 };
-        let scoreSize = { width: 30, height: 30 };
-        this.ui = new UIScoreElement(location, size, isLeftHanded, name1, name2);
     }
     setOwned(value) {
         this.owned = value;
         if (this.owned) {
             this.owner = App.currentPlayer;
-            this.ui.color = this.owner.color;
-            this.ui.children[0].color = this.ui.color;
-            this.ui.children[1].color = this.ui.color;
-            this.ui.render();
-            this.ui.renderValue(this.possibleValue.toString());
+            this.updateScoreElement(this.owner.color, this.possibleValue.toString());
         }
         else {
             this.owner = null;
-            this.ui.children[0].color = this.ui.originalColor;
-            this.ui.children[1].color = this.ui.originalColor;
-            this.ui.render();
-            this.ui.renderValue(ScoreElement.zero);
+            this.updateScoreElement(null, ScoreComponent.zero);
         }
     }
+    renderValue(value) {
+        let eventName = 'RenderValue' + this.id;
+        Events.fire(eventName, {
+            valueString: value,
+            available: this.available
+        });
+    }
+    updateScoreElement(color, value) {
+        let eventName = 'UpdateScoreElement' + this.id;
+        Events.fire(eventName, {
+            color: color,
+            valueString: value,
+            available: this.available
+        });
+    }
     setAvailable(value) {
-        this.ui.available = value;
-        if (this.ui.available) {
+        this.available = value;
+        if (this.available) {
             if (this.possibleValue > 0) {
-                this.ui.renderValue(this.possibleValue.toString());
+                this.renderValue(this.possibleValue.toString());
             }
         }
         else {
             if (this.owned) {
-                this.ui.renderValue(this.possibleValue.toString());
+                this.renderValue(this.possibleValue.toString());
             }
-            this.ui.renderValue(this.possibleValue.toString());
+            this.renderValue(this.possibleValue.toString());
         }
     }
     clicked() {
@@ -58,7 +64,7 @@ class ScoreElement {
                 App.currentPlayer.lastScore = wasTaken + this.name + ' ' + App.dice.toString();
                 app.logLine(App.currentPlayer.name + ' ' + App.currentPlayer.lastScore, app.scoreMsg);
             }
-            if (this.id === UI.FiveOfaKind) {
+            if (this.id === Possible.FiveOfaKind) {
                 if (App.dice.isFiveOfaKind) {
                     App.dice.fiveOfaKindBonusAllowed = true;
                     app.sounds.play(app.sounds.heehee);
@@ -71,7 +77,7 @@ class ScoreElement {
             this.setValue();
             scoreTaken = true;
         }
-        else if (this.ui.available) {
+        else if (this.available) {
             App.currentPlayer.lastScore = 'stole ' + this.name + ' ' + App.dice.toString() + ' was: ' + this.scoringDieset.toString();
             app.logLine(App.currentPlayer.name + ' ' + App.currentPlayer.lastScore, app.scoreMsg);
             this.setOwned(false);
@@ -91,7 +97,7 @@ class ScoreElement {
         if (App.dice.isFiveOfaKind) {
             if (App.dice.fiveOfaKindBonusAllowed) {
                 App.dice.fiveOfaKindCount += 1;
-                if (this.id !== UI.FiveOfaKind) {
+                if (this.id !== Possible.FiveOfaKind) {
                     this.finalValue += 100;
                 }
                 this.hasFiveOfaKind = true;
@@ -113,13 +119,13 @@ class ScoreElement {
         }
     }
     setPossible() {
-        this.possibleValue = ScoreElement.possible.evaluate(this.id);
+        this.possibleValue = ScoreComponent.possible.evaluate(this.id);
         if (!this.owned) {
             if (this.possibleValue === 0) {
-                this.ui.renderValue(ScoreElement.zero);
+                this.renderValue(ScoreComponent.zero);
             }
             else {
-                this.ui.renderValue(this.possibleValue.toString());
+                this.renderValue(this.possibleValue.toString());
             }
             this.setAvailable(true);
         }
@@ -127,7 +133,7 @@ class ScoreElement {
             if (this.possibleValue > this.finalValue) {
                 if (!this.hasFiveOfaKind) {
                     this.setAvailable(true);
-                    this.ui.renderValue(this.possibleValue.toString());
+                    this.renderValue(this.possibleValue.toString());
                 }
             }
         }
@@ -136,10 +142,7 @@ class ScoreElement {
         this.setOwned(false);
         this.finalValue = 0;
         this.possibleValue = 0;
-        this.ui.color = this.ui.originalColor;
-        this.ui.children[2].color = this.ui.originalColor;
-        this.ui.render();
-        this.ui.renderValue(ScoreElement.zero);
+        this.updateScoreElement(this.baseColor, ScoreComponent.zero);
         this.hasFiveOfaKind = false;
     }
     clearPossible() {
@@ -147,11 +150,11 @@ class ScoreElement {
         this.setAvailable(false);
         if (!this.owned) {
             this.finalValue = 0;
-            this.ui.renderValue(ScoreElement.zero);
+            this.renderValue(ScoreComponent.zero);
         }
         else {
-            this.ui.renderValue(this.finalValue.toString());
+            this.renderValue(this.finalValue.toString());
         }
     }
 }
-ScoreElement.zero = '';
+ScoreComponent.zero = '';

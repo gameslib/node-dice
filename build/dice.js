@@ -1,5 +1,6 @@
 class Dice {
     constructor() {
+        this.dieSize = 82;
         this.isFiveOfaKind = false;
         this.fiveOfaKindCount = 0;
         this.fiveOfaKindBonusAllowed = false;
@@ -10,7 +11,7 @@ class Dice {
         this.die = new Array();
         for (var i = 0; i < 5; i++) {
             var x = 81 + (i * 90);
-            this.die.push(new Die(i, { left: x, top: 95 }, 82));
+            this.die.push(new Die(i, { left: x, top: 95 }, { width: this.dieSize, height: this.dieSize }));
         }
         this.resetTurn();
     }
@@ -28,6 +29,7 @@ class Dice {
     }
     resetGame() {
         this.resetTurn();
+        this.isFiveOfaKind = false;
         this.fiveOfaKindCount = 0;
         this.fiveOfaKindBonusAllowed = false;
         this.fiveOfaKindWasSacrificed = false;
@@ -37,14 +39,12 @@ class Dice {
             if (dice === null) {
                 if (!thisDie.frozen) {
                     thisDie.value = Math.floor(Math.random() * 6) + 1;
-                    thisDie.lastValue = thisDie.value;
                 }
             }
             else {
                 thisDie.frozen = dice[index].frozen;
                 if (!thisDie.frozen) {
                     thisDie.value = dice[index].value;
-                    thisDie.lastValue = thisDie.value;
                 }
             }
             thisDie.render();

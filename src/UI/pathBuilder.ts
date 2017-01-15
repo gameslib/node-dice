@@ -1,6 +1,6 @@
 class PathBuilder {
 
-  static BuildRightScore(location: iLocation, size:iSize, radius: number) {
+  static BuildRightScore(location: iLocation, size: iSize, radius: number) {
     let left = location.left
     let top = location.top
     let right = left + size.width
@@ -18,7 +18,7 @@ class PathBuilder {
     return p
   }
 
-  static BuildLeftScore(location: iLocation, size:iSize, radius: number) {
+  static BuildLeftScore(location: iLocation, size: iSize, radius: number) {
     let left = location.left
     let top = location.top
     let right = left + size.width
@@ -36,17 +36,25 @@ class PathBuilder {
     return p
   }
 
-  static BuildRectangle(location: iLocation, size:iSize, radius: number): Path2D {
+  static BuildRectangle(location: iLocation, size: iSize, radius: number): Path2D {
     let left = location.left
     let top = location.top
     let right = left + size.width
     let bottom = top + size.height
     let path = new Path2D
-    path.moveTo(left + radius, top);
-    path.arcTo(right, top, right, top + radius, radius); // top
-    path.arcTo(right, bottom, right - radius, bottom, radius); // right
-    path.arcTo(left, bottom, left, bottom - radius, radius); // bottom
-    path.arcTo(left, top, left + radius, top, radius); // left
+    if (radius < 7) {
+      path.moveTo(left, top);
+      path.lineTo(right, top); // top
+      path.lineTo(right, bottom); // right
+      path.lineTo(left, bottom); // bottom
+      path.lineTo(left, top); // left
+    } else {
+      path.moveTo(left + radius, top);
+      path.arcTo(right, top, right, top + radius, radius); // top
+      path.arcTo(right, bottom, right - radius, bottom, radius); // right
+      path.arcTo(left, bottom, left, bottom - radius, radius); // bottom
+      path.arcTo(left, top, left + radius, top, radius); // left
+    }
     return path
   }
 }

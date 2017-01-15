@@ -8,14 +8,13 @@ class App {
   static myIndex: number = 0
   static players: Player[] = new Array
   static playerScoreElements: Label[]
-  static p2id: number
   static dice: Dice
   static currentPlayer: Player
   static thisPlayer: Player
   sounds: Sounds
   scoresDialog: any
   possible: Possible
-  game: Board
+  game: Game
   numberOfDie: number = 5
   infoElement: Label
   // flags()
@@ -29,7 +28,6 @@ class App {
   static socketSend(name: string, data: any) {
     if (socket) {
       var msg = JSON.stringify({ name: name, data: data })
-      console.log('socket Sent ' + name)
       socket.send(msg);
     } else {
       throw new Error('No open WebSocket connections.')
@@ -49,6 +47,8 @@ class App {
   }
 
   static setPlayers(data: any) {
+    console.log('setPlayer: ' + data)
+    console.info(data)
     App.players = []
     let index = 0
     Object.keys(data).forEach(function (prop) {
@@ -83,24 +83,25 @@ var app = new App()
 
 modules.load(
   [
-    'board',
+    'game',
     'dice',
     'diceEvaluator',
-    'die',
-    'dieBuilder',
-    'pathBuilder',
     'player',
     'possible',
-    'uiScoreElement',
-    'scoreElement',
-    'sounds',
-    'touch',
-    'uiButton',
-    'uiLabel',
-    'uiElement'
+    'scoreComponent',
+    'UI/button',
+    'UI/die.js',
+    'UI/dieBuilder',
+    'UI/label',
+    'UI/pathBuilder',
+    'UI/scoreElement',
+    'UI/ui',
+    'util/events',
+    'util/sounds',
+    'util/touch'
   ]
 )
 
 window.onload = function () {
-  var board = Board.getInstance()
+  var game = Game.getInstance()
 }

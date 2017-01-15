@@ -39,11 +39,20 @@ class PathBuilder {
         let right = left + size.width;
         let bottom = top + size.height;
         let path = new Path2D;
-        path.moveTo(left + radius, top);
-        path.arcTo(right, top, right, top + radius, radius);
-        path.arcTo(right, bottom, right - radius, bottom, radius);
-        path.arcTo(left, bottom, left, bottom - radius, radius);
-        path.arcTo(left, top, left + radius, top, radius);
+        if (radius < 7) {
+            path.moveTo(left, top);
+            path.lineTo(right, top);
+            path.lineTo(right, bottom);
+            path.lineTo(left, bottom);
+            path.lineTo(left, top);
+        }
+        else {
+            path.moveTo(left + radius, top);
+            path.arcTo(right, top, right, top + radius, radius);
+            path.arcTo(right, bottom, right - radius, bottom, radius);
+            path.arcTo(left, bottom, left, bottom - radius, radius);
+            path.arcTo(left, top, left + radius, top, radius);
+        }
         return path;
     }
 }

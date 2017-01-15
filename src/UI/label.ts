@@ -1,5 +1,6 @@
 
-class Label implements iUIElement{
+class Label implements iUIElement {
+  id: number
   private _text: string
   get text(): string {
     return this._text
@@ -14,14 +15,13 @@ class Label implements iUIElement{
 
   location: iLocation
   size: iSize
-  path: Path2D //TODO
-  parent: iUIElement
+  path: Path2D
   children: iUIElement[] = []
   textLocation: iLocation = { left: 0, top: 0 }
   color: string
   textColor: string
 
-  constructor(text: string, location: iLocation, size: iSize, color: string, textColor: string) {
+  constructor(text: string, location: iLocation, size: iSize, color = 'black', textColor = UI.textColor) {
     this.location = location
     this.textLocation.left = location.left - (size.width * 0.5)
     this.size = size
@@ -32,8 +32,12 @@ class Label implements iUIElement{
     this.text = text
   }
 
-  buildPath (): Path2D {
+  buildPath(): Path2D {
     return new Path2D
+  }
+
+  clicked(broadcast: boolean) {
+
   }
 
   hitTest(x: number, y: number) {
