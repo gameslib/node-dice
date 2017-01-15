@@ -21,7 +21,7 @@ class Die implements iUIElement {
     this.render()
   }
 
-  buildPath(){
+  buildPath() {
      this.path = PathBuilder.BuildRectangle(this.location,this.size,0)
   }
 
@@ -40,10 +40,6 @@ class Die implements iUIElement {
     this.frozen = false
     this.value = 0
     this.render()
-  }
-
-  hitTest(x: number, y: number): boolean {
-    return surface.isPointInPath(this.path, x, y)
   }
 
   render() {

@@ -3,7 +3,7 @@ class Button {
         this._backgroundColor = 'black';
         this.children = [];
         this.disabled = false;
-        this.children.push(new Label('Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor));
+        this.children.push(new Label(0, 'Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor));
         this.location = location;
         this.size = size;
         this.buildPath();
@@ -37,11 +37,10 @@ class Button {
     }
     clicked(broadcast) {
         if (!this.disabled) {
-            Events.fire('RollButtonClicked', {});
+            if (broadcast) {
+                Events.fire('RollButtonClicked', {});
+            }
         }
-    }
-    hitTest(x, y) {
-        return surface.isPointInPath(this.path, x, y);
     }
     render() {
         if (this.firstPass) {

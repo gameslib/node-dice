@@ -1,4 +1,4 @@
-//TODO: button not locking after turn
+
 class Button implements iUIElement {
   id: number
   get text(): string {
@@ -28,7 +28,7 @@ class Button implements iUIElement {
   textLabel: Label
 
   constructor(location: iLocation, size: iSize) {
-    this.children.push(new Label('Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor))
+    this.children.push(new Label(0, 'Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor))
     this.location = location
     this.size = size
     this.buildPath()
@@ -51,12 +51,10 @@ class Button implements iUIElement {
 
   clicked(broadcast: boolean) {
     if (!this.disabled) {
-      Events.fire('RollButtonClicked', {})
+      if(broadcast) {
+        Events.fire('RollButtonClicked', {})
+      }
     }
-  }
-
-  hitTest(x: number, y: number) {
-    return surface.isPointInPath(this.path, x, y);
   }
 
   render() {

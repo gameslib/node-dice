@@ -1,7 +1,8 @@
 class Label {
-    constructor(text, location, size, color = 'black', textColor = UI.textColor) {
+    constructor(id, text, location, size, color = 'black', textColor = UI.textColor) {
         this.children = [];
         this.textLocation = { left: 0, top: 0 };
+        this.id = id;
         this.location = location;
         this.textLocation.left = location.left - (size.width * 0.5);
         this.size = size;
@@ -9,6 +10,7 @@ class Label {
         this.size = size;
         this.color = color;
         this.textColor = textColor;
+        this.buildPath();
         this.text = text;
     }
     get text() {
@@ -24,12 +26,14 @@ class Label {
         this.textLocation.left = this.location.left - (this.size.width * 0.5);
     }
     buildPath() {
-        return new Path2D;
+        let p = new Path2D;
+        p.rect(this.textLocation.left, this.textLocation.top, this.size.width, this.size.height);
+        this.path = p;
     }
     clicked(broadcast) {
-    }
-    hitTest(x, y) {
-        return false;
+        if (broadcast) {
+            App.socketSend('label-' + this.id, { label: this.id });
+        }
     }
     render() {
         surface.fillStyle = this.color;

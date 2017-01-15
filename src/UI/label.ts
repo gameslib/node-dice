@@ -21,7 +21,8 @@ class Label implements iUIElement {
   color: string
   textColor: string
 
-  constructor(text: string, location: iLocation, size: iSize, color = 'black', textColor = UI.textColor) {
+  constructor(id: number, text: string, location: iLocation, size: iSize, color = 'black', textColor = UI.textColor) {
+    this.id = id
     this.location = location
     this.textLocation.left = location.left - (size.width * 0.5)
     this.size = size
@@ -29,19 +30,20 @@ class Label implements iUIElement {
     this.size = size
     this.color = color
     this.textColor = textColor
+    this.buildPath()
     this.text = text
   }
 
-  buildPath(): Path2D {
-    return new Path2D
+  buildPath() {
+    let p = new Path2D
+    p.rect(this.textLocation.left, this.textLocation.top, this.size.width, this.size.height)
+    this.path = p
   }
 
   clicked(broadcast: boolean) {
-
-  }
-
-  hitTest(x: number, y: number) {
-    return false;
+    if (broadcast) {
+      App.socketSend('label-' + this.id, { label: this.id })
+    }
   }
 
   render() {

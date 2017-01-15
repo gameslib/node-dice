@@ -30,9 +30,6 @@ class Die {
         this.value = 0;
         this.render();
     }
-    hitTest(x, y) {
-        return surface.isPointInPath(this.path, x, y);
-    }
     render() {
         if (this.frozen) {
             surface.putImageData(Die.frozenFaces[this.value], this.location.left, this.location.top);

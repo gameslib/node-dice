@@ -35,13 +35,13 @@ class UI {
     surface.shadowOffsetY = 3
     surface.fillRect(0, 0, canvas.width, canvas.height)
 
-    app.infoElement = new Label('', { left: 300, top: 600 }, { width: 590, height: 35 }, UI.textColor, 'black')
+    app.infoElement = new Label(0, '', { left: 300, top: 600 }, { width: 590, height: 35 }, UI.textColor, 'black')
     UI.buildPlayerElements()
 
     UI.buildScoreElements()
     App.dice = new Dice()
 
-    UI.leftScoreElement = new Label('^ total = 0', { left: canvas.clientLeft + 162, top: 545 }, { width: 265, height: 90 }, 'gray', UI.textColor)
+    UI.leftScoreElement = new Label(0, '^ total = 0', { left: canvas.clientLeft + 162, top: 545 }, { width: 265, height: 90 }, 'gray', UI.textColor)
     UI.rollButton = new Button({ left: 210, top: 9 }, { width: 175, height: 75 })
 
     ontouch(canvas, (touchobj: any, phase: string, distX: number, distY: number) => {
@@ -98,10 +98,10 @@ class UI {
   static buildPlayerElements() {
     let size = { width: 150, height: 35 }
     App.playerScoreElements = new Array
-    App.playerScoreElements[0] = new Label('', { left: 100, top: 40 }, size, UI.textColor)
-    App.playerScoreElements[1] = new Label('', { left: 100, top: 65 }, size, UI.textColor)
-    App.playerScoreElements[2] = new Label('', { left: 475, top: 40 }, size, UI.textColor)
-    App.playerScoreElements[3] = new Label('', { left: 475, top: 65 }, size, UI.textColor)
+    App.playerScoreElements[0] = new Label(0, '', { left: 100, top: 40 }, size, UI.textColor)
+    App.playerScoreElements[1] = new Label(1, '', { left: 100, top: 65 }, size, UI.textColor)
+    App.playerScoreElements[2] = new Label(2, '', { left: 475, top: 40 }, size, UI.textColor)
+    App.playerScoreElements[3] = new Label(3, '', { left: 475, top: 65 }, size, UI.textColor)
   }
 
   static resetPlayersScoreElements() {
@@ -122,7 +122,6 @@ interface iUIElement {
   children: iUIElement[]
   render(): void
   buildPath(args: any): void
-  hitTest(x: number, y: number): boolean
   clicked(broadcast: boolean): any
 }
 
