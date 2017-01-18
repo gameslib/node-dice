@@ -1,6 +1,7 @@
 
 class Label implements iUIElement {
   id: number
+  clickable: boolean
   private _text: string
   get text(): string {
     return this._text
@@ -21,8 +22,9 @@ class Label implements iUIElement {
   color: string
   textColor: string
 
-  constructor(id: number, text: string, location: iLocation, size: iSize, color = 'black', textColor = UI.textColor) {
+  constructor(id: number, text: string, location: iLocation, size: iSize, color = 'black', textColor = UI.textColor, clickable: boolean) {
     this.id = id
+    this.clickable = clickable
     this.location = location
     this.textLocation.left = location.left - (size.width * 0.5)
     this.size = size
@@ -31,6 +33,9 @@ class Label implements iUIElement {
     this.color = color
     this.textColor = textColor
     this.buildPath()
+    if (clickable) {
+      UI.clickables.push(this)
+    }
     this.text = text
   }
 
@@ -40,7 +45,7 @@ class Label implements iUIElement {
     this.path = p
   }
 
-  clicked(broadcast: boolean) {
+  onClick(broadcast: boolean, x: number, y: number) {
     if (broadcast) {
       App.socketSend('label-' + this.id, { label: this.id })
     }

@@ -1,9 +1,11 @@
+
 class UI {
   static textColor: string
   static rollButton: Button
   static leftScoreElement: Label
   static scoreButtons: ScoreElement[]
   static clickables: iUIElement[] = []
+  static popup: Popup
 
   static names: string[][] = [
     ['Ones', ''],
@@ -22,6 +24,7 @@ class UI {
   ]
 
   static initialize() {
+    UI.popup = new Popup({width:400, height: 400})
     let canvas = document.getElementById('drawing-surface') as HTMLCanvasElement
     surface = canvas.getContext('2d')
     surface.lineWidth = 1;
@@ -35,14 +38,14 @@ class UI {
     surface.shadowOffsetY = 3
     surface.fillRect(0, 0, canvas.width, canvas.height)
 
-    app.infoElement = new Label(0, '', { left: 300, top: 600 }, { width: 590, height: 35 }, UI.textColor, 'black')
+    app.infoElement = new Label(0, '', { left: 300, top: 600 }, { width: 590, height: 35 }, UI.textColor, 'black', false)
     UI.buildPlayerElements()
 
     UI.buildScoreElements()
     App.dice = new Dice()
 
-    UI.leftScoreElement = new Label(0, '^ total = 0', { left: canvas.clientLeft + 162, top: 545 }, { width: 265, height: 90 }, 'gray', UI.textColor)
-    UI.rollButton = new Button({ left: 210, top: 9 }, { width: 175, height: 75 })
+    UI.leftScoreElement = new Label(100, '^ total = 0', { left: canvas.clientLeft + 162, top: 545 }, { width: 265, height: 90 }, 'gray', UI.textColor, true)
+    UI.rollButton = new Button({ left: 210, top: 9 }, { width: 175, height: 75 }, true)
 
     ontouch(canvas, (touchobj: any, phase: string, distX: number, distY: number) => {
       if (phase !== 'start') { return }
@@ -52,7 +55,7 @@ class UI {
         let y = touchobj.pageY - canvas.offsetTop
         UI.clickables.forEach((element, index) => {
           if (surface.isPointInPath(element.path, x, y)) {
-            element.clicked(true)
+            element.onClick(true, x, y)
           }
         })
       }
@@ -98,10 +101,10 @@ class UI {
   static buildPlayerElements() {
     let size = { width: 150, height: 35 }
     App.playerScoreElements = new Array
-    App.playerScoreElements[0] = new Label(0, '', { left: 100, top: 40 }, size, UI.textColor)
-    App.playerScoreElements[1] = new Label(1, '', { left: 100, top: 65 }, size, UI.textColor)
-    App.playerScoreElements[2] = new Label(2, '', { left: 475, top: 40 }, size, UI.textColor)
-    App.playerScoreElements[3] = new Label(3, '', { left: 475, top: 65 }, size, UI.textColor)
+    App.playerScoreElements[0] = new Label(0, '', { left: 100, top: 40 }, size, UI.textColor, 'red', false)
+    App.playerScoreElements[1] = new Label(1, '', { left: 100, top: 65 }, size, UI.textColor, 'blue', false)
+    App.playerScoreElements[2] = new Label(2, '', { left: 475, top: 40 }, size, UI.textColor, 'green', false)
+    App.playerScoreElements[3] = new Label(3, '', { left: 475, top: 65 }, size, UI.textColor, 'black', false)
   }
 
   static resetPlayersScoreElements() {
@@ -119,10 +122,11 @@ interface iUIElement {
   path: Path2D
   color: string
   text: string
+  clickable:boolean
   children: iUIElement[]
   render(): void
   buildPath(args: any): void
-  clicked(broadcast: boolean): any
+  onClick(broadcast: boolean, x: number, y: number): any
 }
 
 interface iSize {

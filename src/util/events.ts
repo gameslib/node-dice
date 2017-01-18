@@ -61,7 +61,8 @@ class Events {
   var subscription = Events.once('click', function(obj) {
 	  // Do something now that the event has fired
   })
-  // sometime later where I no longer want the subscription
+
+  // sometime later where you no longer want the subscription
   subscription.remove();
 
 */

@@ -14,7 +14,7 @@ class Game {
         App.players[0] = (new Player(App.thisID, person, 'red', 0, App.playerScoreElements[0]));
         App.thisPlayer = App.players[0];
         App.currentPlayer = App.thisPlayer;
-        App.socketSend('loggedIn', {
+        App.socketSend('LoggedIn', {
             id: App.thisID,
             name: person
         });
@@ -23,24 +23,24 @@ class Game {
             let messageName = d.name;
             let data = d.data;
             switch (messageName) {
-                case 'setPlayers':
+                case 'SetPlayers':
                     App.setPlayers(data);
                     break;
-                case 'updateRoll':
+                case 'UpdateRoll':
                     this.rollTheDice(data);
                     break;
-                case 'updateDie':
-                    App.dice.die[data.dieNumber].clicked(false);
+                case 'UpdateDie':
+                    App.dice.die[data.dieNumber].onClick(false, 0, 0);
                     break;
-                case 'updateScore':
+                case 'UpdateScore':
                     Game.scoreItems[parseInt(data.scoreNumber, 10)].clicked();
                     break;
-                case 'resetTurn':
+                case 'ResetTurn':
                     this.isGameComplete();
                     App.currentPlayer = App.players[data.currentPlayerIndex];
                     this.resetTurn();
                     break;
-                case 'resetGame':
+                case 'ResetGame':
                     App.currentPlayer = App.players[data.currentPlayerIndex];
                     this.resetGame();
                     break;
@@ -48,15 +48,17 @@ class Game {
                     break;
             }
         };
-        Events.on('GameOver', () => {
-            App.socketSend('gameOver', {
+        Events.on('ResetGame', () => {
+            App.socketSend('GameOver', {
                 'id': App.thisID
             });
+            this.resetGame();
+        });
+        Events.on('GameOver', () => {
             this.clearPossibleScores();
             this.setLeftScores();
             this.setRightScores();
             this.showFinalScore(this.getWinner());
-            this.resetGame();
         });
         Events.on('ScoreWasSelected', () => {
             this.isGameComplete();
@@ -78,7 +80,7 @@ class Game {
         if (data.id === App.thisID) {
             app.sounds.play(app.sounds.roll);
             App.dice.roll();
-            App.socketSend('playerRolled', {
+            App.socketSend('PlayerRolled', {
                 'id': App.thisID,
                 'dice': App.dice.die
             });
@@ -174,7 +176,7 @@ class Game {
         this.uiRollState.text = winMsg;
         this.updateRollUi();
         app.logLine(winMsg + ' ' + winner.score, app.scoreMsg);
-        alert(winMsg + ' ' + winner.score);
+        UI.popup.show(winMsg + ' ' + winner.score);
         App.currentPlayer = App.players[App.myIndex];
     }
     isGameComplete() {

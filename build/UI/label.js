@@ -1,8 +1,9 @@
 class Label {
-    constructor(id, text, location, size, color = 'black', textColor = UI.textColor) {
+    constructor(id, text, location, size, color = 'black', textColor = UI.textColor, clickable) {
         this.children = [];
         this.textLocation = { left: 0, top: 0 };
         this.id = id;
+        this.clickable = clickable;
         this.location = location;
         this.textLocation.left = location.left - (size.width * 0.5);
         this.size = size;
@@ -11,6 +12,9 @@ class Label {
         this.color = color;
         this.textColor = textColor;
         this.buildPath();
+        if (clickable) {
+            UI.clickables.push(this);
+        }
         this.text = text;
     }
     get text() {
@@ -30,7 +34,7 @@ class Label {
         p.rect(this.textLocation.left, this.textLocation.top, this.size.width, this.size.height);
         this.path = p;
     }
-    clicked(broadcast) {
+    onClick(broadcast, x, y) {
         if (broadcast) {
             App.socketSend('label-' + this.id, { label: this.id });
         }

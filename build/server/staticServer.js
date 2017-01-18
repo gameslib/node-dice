@@ -53,37 +53,37 @@ var currentPlayerIndex = 0;
 socketServer.on('connection', function (client) {
     client.id = numberOfPlayers;
     client.on('message', (message) => {
-        var d = JSON.parse(message);
-        switch (d.name) {
-            case 'loggedIn':
+        var msg = JSON.parse(message);
+        switch (msg.name) {
+            case 'LoggedIn':
                 numberOfPlayers = Object.keys(players).length;
-                players[numberOfPlayers] = { id: d.data.id, name: d.data.name, color: playerColors[numberOfPlayers] };
-                console.log('Player name: ' + d.data.name + '  id: ' + d.data.id + '  color: ' + playerColors[numberOfPlayers] + ' signed in.    Number of players = ' + numberOfPlayers);
+                players[numberOfPlayers] = { id: msg.data.id, name: msg.data.name, color: playerColors[numberOfPlayers] };
+                console.log('Player name: ' + msg.data.name + '  id: ' + msg.data.id + '  color: ' + playerColors[numberOfPlayers] + ' signed in.    Number of players = ' + numberOfPlayers);
                 numberOfPlayers = Object.keys(players).length;
-                broadcastAll(client, 'setPlayers', players);
-                broadcastAll(client, 'resetGame', { currentPlayerIndex: 0 });
+                broadcastAll(client, 'SetPlayers', players);
+                broadcastAll(client, 'ResetGame', { currentPlayerIndex: 0 });
                 break;
-            case 'playerRolled':
-                broadcast(client, 'updateRoll', d.data);
+            case 'PlayerRolled':
+                broadcast(client, 'UpdateRoll', msg.data);
                 break;
-            case 'dieClicked':
-                broadcast(client, 'updateDie', d.data);
+            case 'DieClicked':
+                broadcast(client, 'UpdateDie', msg.data);
                 break;
-            case 'scoreClicked':
-                broadcast(client, 'updateScore', d.data);
+            case 'ScoreClicked':
+                broadcast(client, 'UpdateScore', msg.data);
                 break;
-            case 'turnOver':
+            case 'TurnOver':
                 currentPlayerIndex += 1;
                 if (currentPlayerIndex > numberOfPlayers - 1) {
                     currentPlayerIndex = 0;
                 }
-                d.data.currentPlayerIndex = currentPlayerIndex;
-                broadcastAll(client, 'resetTurn', d.data);
+                msg.data.currentPlayerIndex = currentPlayerIndex;
+                broadcastAll(client, 'ResetTurn', msg.data);
                 break;
-            case 'gameOver':
+            case 'GameOver':
                 currentPlayerIndex = 0;
-                broadcastAll(client, 'setPlayers', players);
-                broadcastAll(client, 'resetGame', { currentPlayerIndex: 0 });
+                broadcastAll(client, 'SetPlayers', players);
+                broadcastAll(client, 'ResetGame', { currentPlayerIndex: 0 });
                 break;
             default:
                 break;
@@ -93,10 +93,10 @@ socketServer.on('connection', function (client) {
         delete players[client.id];
         numberOfPlayers = Object.keys(players).length;
         console.log('client  id: ' + client.id + ' closed.  Number of players = ' + numberOfPlayers);
-        broadcastAll(client, 'setPlayers', players);
+        broadcastAll(client, 'SetPlayers', players);
         setTimeout(() => {
             currentPlayerIndex = 0;
-            broadcastAll(client, 'resetGame', { currentPlayerIndex: currentPlayerIndex });
+            broadcastAll(client, 'ResetGame', { currentPlayerIndex: currentPlayerIndex });
         }, 30);
     });
 });

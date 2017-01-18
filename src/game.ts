@@ -2,6 +2,8 @@
 //TODO: rotate resize??
 //TODO: select a name from list of previously used names
 //todo: build UI popup for Win msg,
+//todo:"properties flow down; actions flow up"
+
 class Game {
 
   static scoreItems: ScoreComponent[] = []
@@ -10,6 +12,7 @@ class Game {
   leftTotal: number = 0
   rightTotal: number = 0
   uiRollState = { text: '', color: '', disabled: false }
+
   // singlton instance
   private static instance: Game;
   static getInstance() {
@@ -18,8 +21,6 @@ class Game {
     }
     return Game.instance;
   }
-
-
   private constructor() {
     app.sounds = new Sounds()
     App.thisID = App.generateID()
@@ -31,7 +32,7 @@ class Game {
     App.thisPlayer = App.players[0]
     App.currentPlayer = App.thisPlayer
 
-    App.socketSend('loggedIn', {
+    App.socketSend('LoggedIn', {
       id: App.thisID,
       name: person
     });
@@ -41,24 +42,24 @@ class Game {
       let messageName = d.name
       let data = d.data
       switch (messageName) {
-        case 'setPlayers': // data = {object containing players-objects}
+        case 'SetPlayers': // data = {object containing players-objects}
           App.setPlayers(data)
           break;
-        case 'updateRoll': // data = { 'id': App.thisID, 'dice': app.dice.die }
+        case 'UpdateRoll': // data = { 'id': App.thisID, 'dice': app.dice.die }
           this.rollTheDice(data)
           break;
-        case 'updateDie': //  data = { 'dieNumber': index }
-          App.dice.die[data.dieNumber].clicked(false)
+        case 'UpdateDie': //  data = { 'dieNumber': index }
+          App.dice.die[data.dieNumber].onClick(false, 0, 0)
           break;
-        case 'updateScore': // data = { 'scoreNumber': elemIndex }
+        case 'UpdateScore': // data = { 'scoreNumber': elemIndex }
           Game.scoreItems[parseInt(data.scoreNumber, 10)].clicked()
           break;
-        case 'resetTurn': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
+        case 'ResetTurn': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
           this.isGameComplete()
           App.currentPlayer = App.players[data.currentPlayerIndex]
           this.resetTurn()
           break;
-        case 'resetGame': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
+        case 'ResetGame': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
           App.currentPlayer = App.players[data.currentPlayerIndex]
           this.resetGame()
           break;
@@ -67,15 +68,19 @@ class Game {
       }
     }
 
-    Events.on('GameOver', () => {
-      App.socketSend('gameOver', {
+    Events.on('ResetGame', () => {
+      App.socketSend('GameOver', {
         'id': App.thisID
       })
+      this.resetGame()
+    })
+
+    Events.on('GameOver', () => {
       this.clearPossibleScores()
       this.setLeftScores()
       this.setRightScores()
       this.showFinalScore(this.getWinner())
-      this.resetGame()
+      //this.resetGame()
     })
 
     Events.on('ScoreWasSelected', () => {
@@ -96,7 +101,7 @@ class Game {
     if (data.id === App.thisID) {
       app.sounds.play(app.sounds.roll)
       App.dice.roll()
-      App.socketSend('playerRolled', {
+      App.socketSend('PlayerRolled', {
         'id': App.thisID,
         'dice': App.dice.die
       });
@@ -197,7 +202,8 @@ class Game {
     this.uiRollState.text = winMsg
     this.updateRollUi()
     app.logLine(winMsg + ' ' + winner.score, app.scoreMsg)
-    alert(winMsg + ' ' + winner.score)
+    //alert(winMsg + ' ' + winner.score)
+    UI.popup.show(winMsg + ' ' + winner.score)
     App.currentPlayer = App.players[App.myIndex]
   }
 

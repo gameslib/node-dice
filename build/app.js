@@ -67,6 +67,7 @@ modules.load([
     'player',
     'possible',
     'scoreComponent',
+    'UI/popup',
     'UI/button',
     'UI/die.js',
     'UI/dieBuilder',

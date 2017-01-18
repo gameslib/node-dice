@@ -1,6 +1,7 @@
 
 class Button implements iUIElement {
   id: number
+  clickable: boolean
   get text(): string {
     return this.children[0].text
   }
@@ -27,14 +28,17 @@ class Button implements iUIElement {
   firstPass: boolean // used for shadow control
   textLabel: Label
 
-  constructor(location: iLocation, size: iSize) {
-    this.children.push(new Label(0, 'Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor))
+  constructor(location: iLocation, size: iSize, clickable: boolean) {
+    this.clickable = clickable
+    this.children.push(new Label(0, 'Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor, false))
     this.location = location
     this.size = size
     this.buildPath()
     this.firstPass = true
     this.render()
-    UI.clickables.push(this)
+    if (clickable) {
+      UI.clickables.push(this)
+    }
 
     Events.on('RollUpdate', (data: { text: string, color: string, disabled: boolean }) => {
       this.disabled = data.disabled
@@ -49,7 +53,7 @@ class Button implements iUIElement {
     this.path = PathBuilder.BuildRectangle(this.location, this.size, 10)
   }
 
-  clicked(broadcast: boolean) {
+  onClick(broadcast: boolean, x: number, y: number) {
     if (!this.disabled) {
       if(broadcast) {
         Events.fire('RollButtonClicked', {})

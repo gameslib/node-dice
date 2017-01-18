@@ -2,6 +2,7 @@ class Die implements iUIElement {
   static faces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
   static frozenFaces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
   id: number
+  clickable: boolean
   location: iLocation
   size: iSize
   path: Path2D
@@ -11,8 +12,9 @@ class Die implements iUIElement {
   value: number = 1
   frozen: boolean
 
-  constructor(id: number, location: iLocation, size: iSize) {
+  constructor(id: number, location: iLocation, size: iSize, clickable: boolean) {
     this.id = id
+    this.clickable = clickable
     this.location = location
     this.size = size
     this.value = 1
@@ -25,13 +27,13 @@ class Die implements iUIElement {
      this.path = PathBuilder.BuildRectangle(this.location,this.size,0)
   }
 
-  clicked(broadcast: boolean) {
+  onClick(broadcast: boolean, x: number, y: number) {
     if (this.value > 0) {
       this.frozen = !this.frozen
       this.render()
       app.sounds.play(app.sounds.select)
       if (broadcast) {
-        App.socketSend('dieClicked', { 'dieNumber': this.id })
+        App.socketSend('DieClicked', { 'dieNumber': this.id })
       }
     }
   }

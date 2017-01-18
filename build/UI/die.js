@@ -1,10 +1,11 @@
 class Die {
-    constructor(id, location, size) {
+    constructor(id, location, size, clickable) {
         this.color = '';
         this.text = '';
         this.children = null;
         this.value = 1;
         this.id = id;
+        this.clickable = clickable;
         this.location = location;
         this.size = size;
         this.value = 1;
@@ -15,13 +16,13 @@ class Die {
     buildPath() {
         this.path = PathBuilder.BuildRectangle(this.location, this.size, 0);
     }
-    clicked(broadcast) {
+    onClick(broadcast, x, y) {
         if (this.value > 0) {
             this.frozen = !this.frozen;
             this.render();
             app.sounds.play(app.sounds.select);
             if (broadcast) {
-                App.socketSend('dieClicked', { 'dieNumber': this.id });
+                App.socketSend('DieClicked', { 'dieNumber': this.id });
             }
         }
     }
