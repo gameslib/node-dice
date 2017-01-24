@@ -1,3 +1,24 @@
+/**
+ * Application defines the set of Stores, Models, ViewModels, and Views,
+ * that an application consists of. It automatically loads all of those dependencies
+ * and can optionally specify a launch function that will be called when everything is ready.
+
+  application({
+    name: 'MyApp',
+
+    models: ['User', 'Group'],
+    stores: ['Users'],
+    controllers: ['Users'],
+    views: ['Main', 'ShowUser'],
+
+    launch: function() {
+        Ext.create('MyApp.view.Main');
+    }
+  })
+
+*/
+
+
 
 const HOST = location.origin.replace(/^http/, 'ws')
 const socket: WebSocket = new WebSocket(HOST);
@@ -47,8 +68,6 @@ class App {
   }
 
   static setPlayers(data: any) {
-    console.log('setPlayer: ' + data)
-    console.info(data)
     App.players = []
     let index = 0
     Object.keys(data).forEach(function (prop) {
@@ -83,23 +102,25 @@ var app = new App()
 
 modules.load(
   [
-    'game',
-    'dice',
-    'diceEvaluator',
-    'player',
-    'possible',
-    'scoreComponent',
-    'UI/popup',
-    'UI/button',
-    'UI/die.js',
-    'UI/dieBuilder',
-    'UI/label',
-    'UI/pathBuilder',
-    'UI/scoreElement',
-    'UI/ui',
-    'util/events',
-    'util/sounds',
-    'util/touch'
+    'viewModel/game',
+    'viewModel/dice',
+    'viewModel/diceEvaluator',
+    'viewModel/player',
+    'viewModel/possible',
+    'viewModel/scoreComponent',
+
+    'view/popup',
+    'view/button',
+    'view/die.js',
+    'view/dieBuilder',
+    'view/label',
+    'view/pathBuilder',
+    'view/scoreElement',
+    'view/ui',
+    'framework/canvasVue',
+    'framework/events',
+    'framework/sounds',
+    'framework/touch'
   ]
 )
 

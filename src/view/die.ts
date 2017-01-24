@@ -1,20 +1,21 @@
-class Die implements iUIElement {
+class Die implements UIElement {
   static faces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
   static frozenFaces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
-  id: number
-  clickable: boolean
+  id: string
+  enabled: boolean
+  visible: boolean = true
   location: iLocation
   size: iSize
   path: Path2D
   color = ''
   text = ''
-  children:iUIElement[] = null
+  children:UIElement[] = null
   value: number = 1
   frozen: boolean
 
-  constructor(id: number, location: iLocation, size: iSize, clickable: boolean) {
+  constructor(id: string, location: iLocation, size: iSize, enabled: boolean) {
     this.id = id
-    this.clickable = clickable
+    this.enabled = enabled
     this.location = location
     this.size = size
     this.value = 1

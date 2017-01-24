@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceRoot}/build/server/staticServer.js",
+      "program": "${workspaceRoot}/build/framework/staticServer.js",
       "cwd": "${workspaceRoot}"
     },
     {

@@ -1,7 +1,8 @@
 
-class Label implements iUIElement {
-  id: number
-  clickable: boolean
+class Label implements UIElement {
+  id: string
+  enabled: boolean
+  visible: boolean = true
   private _text: string
   get text(): string {
     return this._text
@@ -17,14 +18,14 @@ class Label implements iUIElement {
   location: iLocation
   size: iSize
   path: Path2D
-  children: iUIElement[] = []
+  children: UIElement[] = []
   textLocation: iLocation = { left: 0, top: 0 }
   color: string
   textColor: string
 
-  constructor(id: number, text: string, location: iLocation, size: iSize, color = 'black', textColor = UI.textColor, clickable: boolean) {
+  constructor(id: string, text: string, location: iLocation, size: iSize, color = 'black', textColor = UI.textColor, enabled: boolean) {
     this.id = id
-    this.clickable = clickable
+    this.enabled = enabled
     this.location = location
     this.textLocation.left = location.left - (size.width * 0.5)
     this.size = size
@@ -33,7 +34,7 @@ class Label implements iUIElement {
     this.color = color
     this.textColor = textColor
     this.buildPath()
-    if (clickable) {
+    if (enabled) {
       UI.clickables.push(this)
     }
     this.text = text

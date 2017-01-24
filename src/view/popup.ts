@@ -1,17 +1,18 @@
 
-class Popup implements iUIElement {
-  id: number
+class Popup implements UIElement {
+  id: string
   location: iLocation
   size: iSize
   text: string
-  clickable: boolean
+  enabled: boolean
+  visible: boolean  = false
   children: null
   color: string
   buffer: ImageData
   path: Path2D
-  visible: boolean = false
 
-  constructor(size: iSize) {
+  constructor(id: string, size: iSize) {
+    this.id = id
     this.location = { left: 100, top: 100 }
     this.path = PathBuilder.BuildRectangle(this.location, size, 30)
     UI.clickables.push(this)

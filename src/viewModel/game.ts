@@ -97,7 +97,6 @@ class Game {
 
   rollTheDice(data: any) {
     // if it's us ..
-    console.log('id: ' + data.id + ' myId: ' + App.thisID)
     if (data.id === App.thisID) {
       app.sounds.play(app.sounds.roll)
       App.dice.roll()

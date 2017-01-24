@@ -1,7 +1,8 @@
 
-class Button implements iUIElement {
-  id: number
-  clickable: boolean
+class Button implements UIElement {
+  id: string
+  enabled: boolean
+  visible: boolean = true
   get text(): string {
     return this.children[0].text
   }
@@ -22,21 +23,22 @@ class Button implements iUIElement {
   location: iLocation
   size: iSize
   path: Path2D
-  children: iUIElement[] = []
+  children: UIElement[] = []
   disabled: boolean = false
 
   firstPass: boolean // used for shadow control
   textLabel: Label
 
-  constructor(location: iLocation, size: iSize, clickable: boolean) {
-    this.clickable = clickable
-    this.children.push(new Label(0, 'Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor, false))
+  constructor(id: string, location: iLocation, size: iSize, enabled: boolean) {
+    this.id = id
+    this.enabled = enabled
+    this.children.push(new Label('0', 'Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor, false))
     this.location = location
     this.size = size
     this.buildPath()
     this.firstPass = true
     this.render()
-    if (clickable) {
+    if (enabled) {
       UI.clickables.push(this)
     }
 
@@ -62,6 +64,7 @@ class Button implements iUIElement {
   }
 
   render() {
+    //todo: save and restore the surface ... (ctx)
     if (this.firstPass) {
       // turn shadow on
       surface.shadowColor = 'burlywood'
