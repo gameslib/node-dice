@@ -1,6 +1,6 @@
 
 /**
-  *  CanvasVue Class
+  *  ViewModel Class
   *  Wraps a javascript object and modifies the
   *  property descriptors of each of its primative
   *  properties. The modification adds a 'setter'
@@ -13,27 +13,32 @@
   *  Adds a public method 'notifyPropertyChanged' to the object.
   *  this method fires a property-change notification event.
   *
-  *  @class CanvasVue
+  *  @class ViewModel
   */
-class CanvasVue {
+class ViewModel {
 
   // keyed collection of subscription callbacks
   private subscribers: subscription
   private scope: string
+  private model: {}
+  private view: UIElement
 
-  // creates a new CanvasVue
-  constructor(model: any, scope: string) {
+
+  // creates a new ViewModel
+  constructor(model: any, view: UIElement, options: any) {
     this.subscribers = {}
-    this.scope = scope
+    this.scope = options.scope
+    this.model = model
+    this. view = view
     this.getOwnPrimativeProperties(model)
   }
 
   /**
-   *  private CanvasVue.getOwnPrimativeProperties
+   *  private ViewModel.getOwnPrimativeProperties
    *  Find all properties of the object, ignoring
    *  functions and non-primitive properties.
    *
-   *	@class CanvasVue
+   *	@class ViewModel
    *	@method getOwnPrimativeProperties
    *	@param obj {Object} the object to be examined
    */
@@ -49,12 +54,12 @@ class CanvasVue {
   }
 
   /**
-   *	private CanvasVue.makeObservable
+   *	private ViewModel.makeObservable
    *  Create a new property deinition that adds a setter function
    *  that will call our notifyPropertyChanged method whenever the
    *  property value has been changed.
    *
-   *	@class CanvasVue
+   *	@class ViewModel
    *	@method makeObservable
    *	@param obj {object}
    *	@param key {string}
@@ -78,10 +83,10 @@ class CanvasVue {
   }
 
   /**
-   *	public CanvasVue.onPropertyChanged
+   *	public ViewModel.onPropertyChanged
    *  registers a callback function to be notified of a property change event
    *
-   *	@class CanvasVue
+   *	@class ViewModel
    *	@method onPropertyChanged
    *	@param propertyName {string}
    *	@param callBack {onChangeCallback}
@@ -94,11 +99,11 @@ class CanvasVue {
   }
 
   /**
-   *	public CanvasVue.notifyPropertyChanged
+   *	public ViewModel.notifyPropertyChanged
    *  notify that a property value has changed
    *  (executes all callback functions that have subscribed to this propertyName)
    *
-   *	@class CanvasVue
+   *	@class ViewModel
    *	@method notifyPropertyChanged
    *	@param propertyName {string} the property of interest
    */

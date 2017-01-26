@@ -45,9 +45,10 @@ class ScoreElement implements UIElement {
     let textSize = { width: 85, height: 30 }
     let scoreSize = { width: 30, height: 30 }
     const { left, top } = this.location
-
+    //console.log(left + ' ' + top)
     if (this.isLeftHanded) {
       this.path = PathBuilder.BuildLeftScore(this.location, this.size, 10)
+      //console.log(left + ' ' + top)
       this.children.push(
         new Label(this.id + '-upperText', this.upperText, { left: left + 55, top: top + 40 }, textSize, this.color, UI.textColor, false),
         new Label(this.id + '-lowerText', this.lowerText, { left: left + 55, top: top + 70 }, textSize, this.color, UI.textColor, false),
@@ -64,7 +65,7 @@ class ScoreElement implements UIElement {
     this.lowerName = <Label>this.children[1]
   }
 
-  onClick(broadcast:boolean, x: number, y: number) {
+  onClick(broadcast: boolean, x: number, y: number) {
     App.socketSend('ScoreClicked', {
       'id': App.thisID,
       'scoreNumber': this.index
@@ -73,7 +74,7 @@ class ScoreElement implements UIElement {
       App.socketSend('TurnOver', {
         'id': App.thisID
       });
-      Events.fire('ScoreWasSelected',{})
+      Events.fire('ScoreWasSelected', {})
       //this.isGameComplete()
       //this.resetTurn()
     }
@@ -92,5 +93,4 @@ class ScoreElement implements UIElement {
     this.scoreBox.color = scoreBoxColor
     this.scoreBox.text = scoretext // label.text setter fires render
   }
-
 }

@@ -2,27 +2,9 @@
 
 <head>
   <title>Dice Game</title>
+  <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-  <style>
-
-html {
-	/* This will hide the extra canvas if the screen is small*/
-	  overflow:hidden;
-    background-color: #000;
-}
-#drawing-surface{
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    border: 4px solid #ccc;
-    background-color: #f9f5ff;
-  }
-
-</style>
-
-<script src="build/framework/Modules.js" data-bootLoader="framework/app"></script>
+  <script src="build/framework/Modules.js" data-bootLoader="framework/app"></script>
 </head>
 
 <body>
@@ -33,6 +15,21 @@ html {
   <audio id="selectSound" src="media/Select.mp3" preload="auto"></audio>
   <audio id="woohooSound" src="media/Woohoo.mp3" preload="auto"></audio>
   <audio id="noooSound" src="media/Nooo.mp3" preload="auto"></audio>
+
+  <x-label id="ones" data-text="Ones, " data-left=34 data-top=180 data-isleft=true></x-label>
+  <x-label id="twos" data-text="Twos, " data-left=142 data-top=180 data-isleft=false></x-label>
+  <x-label id="threes" data-text="Threes, " data-left=34 data-top=280 data-isleft=true></x-label>
+  <x-label id="fours" data-text="Fours, " data-left=142 data-top=280 data-isleft=false></x-label>
+  <x-label id="fives" data-text="Fives, " data-left=34 data-top=380 data-isleft=true></x-label>
+  <x-label id="sixes" data-text="Sixes, " data-left=142 data-top=380 data-isleft=false></x-label>
+
+  <x-label id="three-o-kind" data-text="Three ,O-Kind" data-left=311 data-top=180 data-isleft=true></x-label>
+  <x-label id="four-o-kind" data-text="Four ,O-Kind" data-left=419 data-top=180 data-isleft=false></x-label>
+  <x-label id="small-straight" data-text="Small ,Straight" data-left=311 data-top=280 data-isleft=true></x-label>
+  <x-label id="large-straight" data-text="Large ,Straight" data-left=419 data-top=280 data-isleft=false></x-label>
+  <x-label id="full-house" data-text="Full ,House" data-left=311 data-top=380 data-isleft=true></x-label>
+  <x-label id="five-o-kind" data-text="Five ,O-Kind" data-left=419 data-top=380 data-isleft=false></x-label>
+  <x-label id="chance" data-text="Chance, " data-left=311 data-top=480 data-isleft=true></x-label>
 
   <canvas id="drawing-surface" width="600" height="600"></canvas>
 

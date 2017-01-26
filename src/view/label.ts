@@ -30,7 +30,6 @@ class Label implements UIElement {
     this.textLocation.left = location.left - (size.width * 0.5)
     this.size = size
     this.textLocation.top = location.top - (size.height * 0.7)
-    this.size = size
     this.color = color
     this.textColor = textColor
     this.buildPath()

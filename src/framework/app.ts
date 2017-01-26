@@ -17,8 +17,21 @@
   })
 
 */
-
-
+//todo: Build a View-Factory object
+//      View takes a Container (container is the Context2D to render to)
+//      Build a static 'Binder' function that takes a View and a model and returns a ViewModel
+//      Binding does not mutate the View or the Model
+//      Use Naming convention to two-way bind the View and model (properties, attributes, state).
+//      View-Base to include Pathbuilder
+//      Named-Paths to have default geometry
+//      Custom Path object to contain Path2D, Colors, Geometry
+//
+//      View-Base has State (Clickable, Enabled, Visible)
+//      Hydrate and Bind from Custom HTML-elements ...
+//          read the DOM elements,
+//          hydrate-canvas-element with-css,
+//          destroy-DOM-element, bind-with-Model
+//      Path2D from SVG-tag?
 
 const HOST = location.origin.replace(/^http/, 'ws')
 const socket: WebSocket = new WebSocket(HOST);
@@ -111,6 +124,7 @@ modules.load(
 
     'view/popup',
     'view/button',
+    'view/customLabel.js',
     'view/die.js',
     'view/dieBuilder',
     'view/label',
@@ -125,5 +139,6 @@ modules.load(
 )
 
 window.onload = function () {
+
   var game = Game.getInstance()
 }

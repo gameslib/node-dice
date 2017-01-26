@@ -1,5 +1,4 @@
 //todo: work on framework layout manager
-
 class UI {
   static textColor: string
   static rollButton: Button
@@ -7,25 +6,9 @@ class UI {
   static scoreButtons: ScoreElement[]
   static clickables: UIElement[] = []
   static popup: Popup
-
-  static names: string[][] = [
-    ['Ones', ''],
-    ['Twos', ''],
-    ['Threes', ''],
-    ['Fours', ''],
-    ['Fives', ''],
-    ['Sixes', ''],
-    ['Three', 'O-Kind'],
-    ['Four', 'O-Kind'],
-    ['Small', 'Straight'],
-    ['Large', 'Straight'],
-    ['Full', 'House'],
-    ['Five', 'O-Kind'],
-    ['Chance', '']
-  ]
-
   static initialize() {
-    UI.popup = new Popup('WinnerDialog', {width:400, height: 400})
+
+    UI.popup = new Popup('WinnerDialog', { width: 400, height: 400 })
     let canvas = document.getElementById('drawing-surface') as HTMLCanvasElement
     surface = canvas.getContext('2d')
     surface.lineWidth = 1;
@@ -64,27 +47,21 @@ class UI {
   }
 
   static buildScoreElements() {
-    let location = { left: surface.canvas.clientLeft + 30, top: 180 }
     UI.scoreButtons = new Array()
-    let sb = UI.scoreButtons
-    let scTop = location.top
-    let scLeft = location.left
     let size = { width: 150, height: 95 }
-    let scRight = scLeft + (size.width * 0.72)
-    let righOffset = (size.width * 2) - (size.width * 0.15)
     let isleft = true
-
+    let thisScore : any
+    let name: string[]
+    var scores = document.querySelectorAll('x-label')
     for (var i = 0; i < 13; i++) {
-      let loc: iLocation = { left: scLeft, top: scTop }
-      loc.left = (isleft) ? scLeft : scRight
-      if (i == 2 || i == 3 || i == 8 || i == 9) loc.top += 100
-      if (i == 4 || i == 5 || i == 10 || i == 11) loc.top += 200
-      if (i == 12) loc.top += 300
-      if (i > 5) loc.left += righOffset
-      Game.scoreItems.push(new ScoreComponent(i, UI.names[i][0], UI.names[i][1]))
-      UI.scoreButtons.push(new ScoreElement(i, loc, size, isleft, UI.names[i][0], UI.names[i][1]))
-      isleft = !isleft
+      thisScore = scores[i]
+      isleft = (thisScore.dataset.isleft === 'true') ? true : false
+      name = (<string>thisScore.dataset.text).split(',')
+      let loc: iLocation = { left: parseInt(thisScore.dataset.left), top: parseInt(thisScore.dataset.top) }
+      Game.scoreItems.push(new ScoreComponent(i, name[0], name[1]))
+      UI.scoreButtons.push(new ScoreElement(i, loc, size, isleft, name[0], name[1]))
       UI.clickables.push(UI.scoreButtons[i])
+      thisScore.parentNode.removeChild(thisScore)
     }
     UI.renderScoreElements()
   }
