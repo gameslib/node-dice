@@ -1,45 +1,68 @@
 //todo: work on framework layout manager
+
 class UI {
   static textColor: string
   static rollButton: Button
-  static leftScoreElement: Label
-  static scoreButtons: ScoreElement[]
-  static clickables: UIElement[] = []
+  static leftScoreTotalLabel: Label
+  static scoreButtons: ScoreButton[]
+  static targetElements: UIElement[] = []
   static popup: Popup
-  static initialize() {
 
-    UI.popup = new Popup('WinnerDialog', { width: 400, height: 400 })
+
+  static initialize() {
+    UI.popup = new Popup('WinnerDialog', { left: 100, top: 100, width: 400, height: 400 })
     let canvas = document.getElementById('drawing-surface') as HTMLCanvasElement
     surface = canvas.getContext('2d')
     surface.lineWidth = 1;
     UI.textColor = 'snow'
     surface.strokeStyle = 'snow';
     surface.fillStyle = 'snow'
-    surface.font = "small-caps 18px arial"//Segoe UI" //consolas"//arial"
+    surface.font = "small-caps 18px arial"
     surface.textAlign = 'center'
     surface.shadowBlur = 10
     surface.shadowOffsetX = 3
     surface.shadowOffsetY = 3
     surface.fillRect(0, 0, canvas.width, canvas.height)
 
-    app.infoElement = new Label('infoLabel', '', { left: 300, top: 600 }, { width: 590, height: 35 }, UI.textColor, 'black', false)
+    let info: any = document.getElementById('infoLabel').dataset
+    app.infoElement = new Label('infoLabel', '',
+      { left: parseInt(info.left), top: parseInt(info.top), width: parseInt(info.width), height: 35 },
+      UI.textColor, 'black', false)
+
     UI.buildPlayerElements()
 
     UI.buildScoreElements()
     App.dice = new Dice()
 
-    UI.leftScoreElement = new Label('100', '^ total = 0', { left: canvas.clientLeft + 162, top: 545 }, { width: 265, height: 90 }, 'gray', UI.textColor, true)
-    UI.rollButton = new Button('RollButton', { left: 210, top: 9 }, { width: 175, height: 75 }, true)
+    let leftSC: any = document.getElementById('leftScore').dataset
+    UI.leftScoreTotalLabel = new Label('100', '^ total = 0', {
+      left: canvas.clientLeft + parseInt(leftSC.left),
+      top: parseInt(leftSC.top),
+      width: parseInt(leftSC.width),
+      height: parseInt(leftSC.height)
+    },
+      'gray', UI.textColor, false)
+
+    let RB: any = document.getElementById('rollButton').dataset
+    UI.rollButton = new Button('RollButton',
+      {
+        left: parseInt(RB.left), top: parseInt(RB.top),
+        width: parseInt(RB.width), height: parseInt(RB.height)
+      }, true)
 
     ontouch(canvas, (touchobj: any, phase: string, distX: number, distY: number) => {
       if (phase !== 'start') { return }
+      let hit = false
       // be sure to reject all local click-events during a competitors turns
       if (App.currentPlayer.id === App.thisID) {
         let x = touchobj.pageX - canvas.offsetLeft
         let y = touchobj.pageY - canvas.offsetTop
-        UI.clickables.forEach((element, index) => {
-          if (surface.isPointInPath(element.path, x, y)) {
-            element.onClick(true, x, y)
+        UI.targetElements.forEach((element, index) => {
+          if (!hit) {
+            if (surface.isPointInPath(element.path, x, y)) {
+              element.touched(true, x, y)
+              hit = true
+            }
           }
         })
       }
@@ -48,19 +71,15 @@ class UI {
 
   static buildScoreElements() {
     UI.scoreButtons = new Array()
-    let size = { width: 150, height: 95 }
-    let isleft = true
-    let thisScore : any
-    let name: string[]
-    var scores = document.querySelectorAll('x-label')
-    for (var i = 0; i < 13; i++) {
+    let data: any
+    let thisScore: any
+    var scores = document.querySelectorAll('score')
+    for (var i = 0; i < scores.length; i++) {
       thisScore = scores[i]
-      isleft = (thisScore.dataset.isleft === 'true') ? true : false
-      name = (<string>thisScore.dataset.text).split(',')
-      let loc: iLocation = { left: parseInt(thisScore.dataset.left), top: parseInt(thisScore.dataset.top) }
-      Game.scoreItems.push(new ScoreComponent(i, name[0], name[1]))
-      UI.scoreButtons.push(new ScoreElement(i, loc, size, isleft, name[0], name[1]))
-      UI.clickables.push(UI.scoreButtons[i])
+      data = this.parseData(thisScore.dataset)
+      let loc = { left: data.left, top: data.top }
+      Game.scoreItems.push(new ScoreComponent(i, data.name))
+      UI.scoreButtons.push(new ScoreButton(i, data.geo, data.isleft, data.name))
       thisScore.parentNode.removeChild(thisScore)
     }
     UI.renderScoreElements()
@@ -78,12 +97,11 @@ class UI {
   }
 
   static buildPlayerElements() {
-    let size = { width: 150, height: 35 }
     App.playerScoreElements = new Array
-    App.playerScoreElements[0] = new Label('Player1Score', '', { left: 100, top: 40 }, size, UI.textColor, 'red', false)
-    App.playerScoreElements[1] = new Label('Player2Score', '', { left: 100, top: 65 }, size, UI.textColor, 'blue', false)
-    App.playerScoreElements[2] = new Label('Player3Score', '', { left: 475, top: 40 }, size, UI.textColor, 'green', false)
-    App.playerScoreElements[3] = new Label('Player4Score', '', { left: 475, top: 65 }, size, UI.textColor, 'black', false)
+    App.playerScoreElements[0] = new Label('Player1Score', '', { left: 100, top: 40, width: 150, height: 35 }, UI.textColor, 'red', false)
+    App.playerScoreElements[1] = new Label('Player2Score', '', { left: 100, top: 65, width: 150, height: 35 }, UI.textColor, 'blue', false)
+    App.playerScoreElements[2] = new Label('Player3Score', '', { left: 475, top: 40, width: 150, height: 35 }, UI.textColor, 'green', false)
+    App.playerScoreElements[3] = new Label('Player4Score', '', { left: 475, top: 65, width: 150, height: 35 }, UI.textColor, 'black', false)
   }
 
   static resetPlayersScoreElements() {
@@ -92,29 +110,24 @@ class UI {
       App.playerScoreElements[i].text = ''
     }
   }
+
+  static parseData(data: any) {
+    return {
+      name: (<string>data.text),
+      geo: {
+        left: parseInt(data.left),
+        top: parseInt(data.top),
+        width: 150,
+        height: 95
+      },
+      isleft: (data.isleft === 'true') ? true : false
+    }
+  }
 }
 
-interface UIElement {
-  id: string
-  location: iLocation
-  size: iSize
-  path: Path2D
-  color: string
-  text: string
-  enabled: boolean
-  visible: boolean
-  children: UIElement[]
-  render(): void
-  buildPath(args: any): void
-  onClick(broadcast: boolean, x: number, y: number): any
-}
-
-interface iSize {
-  width: number
-  height: number
-}
-
-interface iLocation {
+interface iGeometry {
   left: number
   top: number
+  width: number
+  height: number
 }

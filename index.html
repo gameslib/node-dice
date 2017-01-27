@@ -16,21 +16,38 @@
   <audio id="woohooSound" src="media/Woohoo.mp3" preload="auto"></audio>
   <audio id="noooSound" src="media/Nooo.mp3" preload="auto"></audio>
 
-  <x-label id="ones" data-text="Ones, " data-left=34 data-top=180 data-isleft=true></x-label>
-  <x-label id="twos" data-text="Twos, " data-left=142 data-top=180 data-isleft=false></x-label>
-  <x-label id="threes" data-text="Threes, " data-left=34 data-top=280 data-isleft=true></x-label>
-  <x-label id="fours" data-text="Fours, " data-left=142 data-top=280 data-isleft=false></x-label>
-  <x-label id="fives" data-text="Fives, " data-left=34 data-top=380 data-isleft=true></x-label>
-  <x-label id="sixes" data-text="Sixes, " data-left=142 data-top=380 data-isleft=false></x-label>
+  <r-button id="rollButton"
+            data-text="Roll Dice"
+            data-left=210
+            data-top=9
+            data-width=175
+            data-height=75>
+  </r-button>
 
-  <x-label id="three-o-kind" data-text="Three ,O-Kind" data-left=311 data-top=180 data-isleft=true></x-label>
-  <x-label id="four-o-kind" data-text="Four ,O-Kind" data-left=419 data-top=180 data-isleft=false></x-label>
-  <x-label id="small-straight" data-text="Small ,Straight" data-left=311 data-top=280 data-isleft=true></x-label>
-  <x-label id="large-straight" data-text="Large ,Straight" data-left=419 data-top=280 data-isleft=false></x-label>
-  <x-label id="full-house" data-text="Full ,House" data-left=311 data-top=380 data-isleft=true></x-label>
-  <x-label id="five-o-kind" data-text="Five ,O-Kind" data-left=419 data-top=380 data-isleft=false></x-label>
-  <x-label id="chance" data-text="Chance, " data-left=311 data-top=480 data-isleft=true></x-label>
+  <score id="ones" data-text="Ones" data-left=34 data-top=180 data-isleft=true></score>
+  <score id="twos" data-text="Twos" data-left=142 data-top=180 data-isleft=false></score>
+  <score id="threes" data-text="Threes" data-left=34 data-top=280 data-isleft=true></score>
+  <score id="fours" data-text="Fours" data-left=142 data-top=280 data-isleft=false></score>
+  <score id="fives" data-text="Fives" data-left=34 data-top=380 data-isleft=true></score>
+  <score id="sixes" data-text="Sixes" data-left=142 data-top=380 data-isleft=false></score>
 
-  <canvas id="drawing-surface" width="600" height="600"></canvas>
+  <label id="leftScore"
+         data-text="^ total = 0"
+         data-left=162 data-top=545
+         data-width=265
+         data-height=90>
+  </label>
+
+  <score id="three-o-kind" data-text="Three O-Kind" data-left=311 data-top=180 data-isleft=true></score>
+  <score id="four-o-kind" data-text="Four O-Kind" data-left=419 data-top=180 data-isleft=false></score>
+  <score id="small-straight" data-text="Small Straight" data-left=311 data-top=280 data-isleft=true></score>
+  <score id="large-straight" data-text="Large Straight" data-left=419 data-top=280 data-isleft=false></score>
+  <score id="full-house" data-text="Full House" data-left=311 data-top=380 data-isleft=true></score>
+  <score id="five-o-kind" data-text="Five O-Kind" data-left=419 data-top=380 data-isleft=false></score>
+  <score id="chance" data-text="Chance" data-left=311 data-top=480 data-isleft=true></score>
+
+  <label id="infoLabel" data-text="..." data-left=300 data-top=600 data-width=500 ></label>
+
+  <canvas id="drawing-surface" width=600 height=600 width=590></canvas>
 
 </body>

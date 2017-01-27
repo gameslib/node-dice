@@ -1,34 +1,23 @@
-class Die implements UIElement {
+class Die extends UIElement {
   static faces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
   static frozenFaces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
-  id: string
-  enabled: boolean
-  visible: boolean = true
-  location: iLocation
-  size: iSize
-  path: Path2D
-  color = ''
-  text = ''
-  children:UIElement[] = null
   value: number = 1
   frozen: boolean
 
-  constructor(id: string, location: iLocation, size: iSize, enabled: boolean) {
-    this.id = id
-    this.enabled = enabled
-    this.location = location
-    this.size = size
+  constructor(id: string, geometry: iGeometry, enabled: boolean) {
+    super(id, geometry, 'white', enabled)
     this.value = 1
     this.buildPath()
-    UI.clickables.push(this)
     this.render()
   }
 
   buildPath() {
-     this.path = PathBuilder.BuildRectangle(this.location,this.size,0)
+     this.path = PathBuilder.BuildRectangle(
+       new PathGeometry(this.geometry, 8)
+    )
   }
 
-  onClick(broadcast: boolean, x: number, y: number) {
+  touched(broadcast: boolean, x: number, y: number) {
     if (this.value > 0) {
       this.frozen = !this.frozen
       this.render()
@@ -47,10 +36,10 @@ class Die implements UIElement {
 
   render() {
     if (this.frozen) {
-      surface.putImageData(Die.frozenFaces[this.value], this.location.left, this.location.top)
+      surface.putImageData(Die.frozenFaces[this.value], this.geometry.left, this.geometry.top)
     }
     else {
-      surface.putImageData(Die.faces[this.value], this.location.left, this.location.top)
+      surface.putImageData(Die.faces[this.value], this.geometry.left, this.geometry.top)
     }
   }
 }

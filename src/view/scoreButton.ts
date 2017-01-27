@@ -1,30 +1,22 @@
 
-class ScoreElement implements UIElement {
+class ScoreButton extends UIElement {
   index: number
-  id: string
-  enabled: boolean
-  visible: boolean = true
-  path: Path2D
-  location: iLocation
-  size: iSize
   children: UIElement[] = []
   isLeftHanded: boolean
   text = ''
-  color: string = 'black'
   upperText: string
   lowerText: string
   scoreBox: Label
   upperName: Label
   lowerName: Label
 
-  constructor(index: number, location: iLocation, size: iSize, isLeftHanded: boolean, upperText: string, lowerText: string) {
+  constructor(index: number, geometry: iGeometry, isLeftHanded: boolean, name: string) {
+    super(name, geometry, 'black', true)
     this.index = index
-    this.id = upperText + '-' + lowerText
-    this.location = location
-    this.size = size
+    this.id = name
     this.isLeftHanded = isLeftHanded
-    this.upperText = upperText
-    this.lowerText = lowerText
+    this.upperText = name.split(' ')[0]
+    this.lowerText = name.split(' ')[1] || ''
     this.buildPath()
 
     Events.on('UpdateScoreElement' + this.index, (data: any) => {
@@ -44,28 +36,26 @@ class ScoreElement implements UIElement {
   buildPath() {
     let textSize = { width: 85, height: 30 }
     let scoreSize = { width: 30, height: 30 }
-    const { left, top } = this.location
-    //console.log(left + ' ' + top)
+    const { left, top } = this.geometry
     if (this.isLeftHanded) {
-      this.path = PathBuilder.BuildLeftScore(this.location, this.size, 10)
-      //console.log(left + ' ' + top)
+      this.path = PathBuilder.BuildLeftScore(new PathGeometry(this.geometry))
       this.children.push(
-        new Label(this.id + '-upperText', this.upperText, { left: left + 55, top: top + 40 }, textSize, this.color, UI.textColor, false),
-        new Label(this.id + '-lowerText', this.lowerText, { left: left + 55, top: top + 70 }, textSize, this.color, UI.textColor, false),
-        new Label(this.id + '-score', '', { left: left + 129, top: top + 29 }, scoreSize, this.color, UI.textColor, false))
+        new Label(this.id + '-upperText', this.upperText, { left: left + 55, top: top + 40 , width: 85, height: 30 }, this.color, UI.textColor, false),
+        new Label(this.id + '-lowerText', this.lowerText, { left: left + 55, top: top + 70 , width: 85, height: 30 }, this.color, UI.textColor, false),
+        new Label(this.id + '-score', '', { left: left + 129, top: top + 29,  width: 30, height: 30 }, this.color, UI.textColor, false))
     } else {
-      this.path = PathBuilder.BuildRightScore(this.location, this.size, 10)
+      this.path = PathBuilder.BuildRightScore(new PathGeometry(this.geometry))
       this.children.push(
-        new Label(this.id + '-upperText', this.upperText, { left: left + 100, top: top + 40 }, textSize, this.color, UI.textColor, false),
-        new Label(this.id + '-lowerText', this.lowerText, { left: left + 100, top: top + 70 }, textSize, this.color, UI.textColor, false),
-        new Label(this.id + '-score', '', { left: left + 22, top: top + 79 }, scoreSize, this.color, UI.textColor, false))
+        new Label(this.id + '-upperText', this.upperText, { left: left + 100, top: top + 40 , width: 85, height: 30 }, this.color, UI.textColor, false),
+        new Label(this.id + '-lowerText', this.lowerText, { left: left + 100, top: top + 70 , width: 85, height: 30 }, this.color, UI.textColor, false),
+        new Label(this.id + '-score', '', { left: left + 22, top: top + 79,  width: 30, height: 30 }, this.color, UI.textColor, false))
     }
     this.scoreBox = <Label>this.children[2]
     this.upperName = <Label>this.children[0]
     this.lowerName = <Label>this.children[1]
   }
 
-  onClick(broadcast: boolean, x: number, y: number) {
+  touched(broadcast: boolean, x: number, y: number) {
     App.socketSend('ScoreClicked', {
       'id': App.thisID,
       'scoreNumber': this.index

@@ -11,7 +11,7 @@ class Game {
   fiveOkindBonus: number = 0
   leftTotal: number = 0
   rightTotal: number = 0
-  uiRollState = { text: '', color: '', disabled: false }
+  uiRollState = { text: '', color: '', enabled: true }
 
   // singlton instance
   private static instance: Game;
@@ -49,15 +49,18 @@ class Game {
           this.rollTheDice(data)
           break;
         case 'UpdateDie': //  data = { 'dieNumber': index }
-          App.dice.die[data.dieNumber].onClick(false, 0, 0)
+          App.dice.die[data.dieNumber].touched(false, 0, 0)
           break;
         case 'UpdateScore': // data = { 'scoreNumber': elemIndex }
           Game.scoreItems[parseInt(data.scoreNumber, 10)].clicked()
           break;
         case 'ResetTurn': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
-          this.isGameComplete()
-          App.currentPlayer = App.players[data.currentPlayerIndex]
-          this.resetTurn()
+          if (this.isGameComplete()) {
+
+          } else {
+            App.currentPlayer = App.players[data.currentPlayerIndex]
+            this.resetTurn()
+          }
           break;
         case 'ResetGame': // data = { 'id': App.thisID, 'currentPlayerIndex': currentPlayerIndex}
           App.currentPlayer = App.players[data.currentPlayerIndex]
@@ -80,16 +83,18 @@ class Game {
       this.setLeftScores()
       this.setRightScores()
       this.showFinalScore(this.getWinner())
-      //this.resetGame()
     })
 
     Events.on('ScoreWasSelected', () => {
-      this.isGameComplete()
-      this.resetTurn()
+      if (this.isGameComplete()) {
+        Events.fire('GameOver', '')
+      } else {
+        this.resetTurn()
+      }
     })
 
     Events.on('RollButtonClicked', () => {
-      this.rollTheDice({id: App.thisID} )
+      this.rollTheDice({ id: App.thisID })
     })
 
     this.resetGame()
@@ -117,7 +122,7 @@ class Game {
         this.uiRollState.text = 'Last Roll'
         break
       case 3:
-        this.uiRollState.disabled = true
+        this.uiRollState.enabled = false
         this.uiRollState.text = 'Select Score'
         break
       default:
@@ -128,7 +133,7 @@ class Game {
   }
 
   updateRollUi() {
-    Events.fire('RollUpdate', (this.uiRollState ))
+    Events.fire('RollUpdate', (this.uiRollState))
   }
 
   getWinner() {
@@ -158,7 +163,7 @@ class Game {
 
   resetTurn() {
     this.uiRollState.color = App.currentPlayer.color
-    this.uiRollState.disabled = false
+    this.uiRollState.enabled = true
     this.updateRollUi()
     App.dice.resetTurn()
     this.uiRollState.text = 'Roll Dice'
@@ -177,14 +182,14 @@ class Game {
     this.fiveOkindBonus = 0
     this.leftTotal = 0
     this.rightTotal = 0
-    UI.leftScoreElement.text = '^ total = 0'
+    UI.leftScoreTotalLabel.text = '^ total = 0'
     App.players.forEach((player: Player) => {
       player.resetScore()
     })
     App.currentPlayer = App.players[0]
     this.uiRollState.color = App.currentPlayer.color
     this.uiRollState.text = 'Roll Dice'
-    this.uiRollState.disabled = false
+    this.uiRollState.enabled = true
     this.updateRollUi()
   }
 
@@ -201,7 +206,6 @@ class Game {
     this.uiRollState.text = winMsg
     this.updateRollUi()
     app.logLine(winMsg + ' ' + winner.score, app.scoreMsg)
-    //alert(winMsg + ' ' + winner.score)
     UI.popup.show(winMsg + ' ' + winner.score)
     App.currentPlayer = App.players[App.myIndex]
   }
@@ -213,9 +217,7 @@ class Game {
         result = false
       }
     })
-    if (result === true) {
-      Events.fire('GameOver', '')
-    }
+    return result
   }
 
   setLeftScores() {
@@ -237,7 +239,7 @@ class Game {
       }
     }
     if (this.leftTotal > 62) { // award bonus
-      UI.leftScoreElement.text = '^ total = ' + this.leftTotal.toString() + ' + 35'
+      UI.leftScoreTotalLabel.text = '^ total = ' + this.leftTotal.toString() + ' + 35'
       let bonusWinner: Player
       let highleft = 0
       App.players.forEach(function (thisPlayer) {
@@ -248,10 +250,10 @@ class Game {
       })
       bonusWinner.addScore(35)
     } else {
-      UI.leftScoreElement.text = '^ total = ' + this.leftTotal.toString()
+      UI.leftScoreTotalLabel.text = '^ total = ' + this.leftTotal.toString()
     }
     if (this.leftTotal === 0) {
-      UI.leftScoreElement.text = '^ total = 0'
+      UI.leftScoreTotalLabel.text = '^ total = 0'
     }
   }
 

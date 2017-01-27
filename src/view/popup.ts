@@ -1,31 +1,30 @@
 
-class Popup implements UIElement {
-  id: string
-  location: iLocation
-  size: iSize
-  text: string
-  enabled: boolean
-  visible: boolean  = false
-  children: null
-  color: string
-  buffer: ImageData
-  path: Path2D
+class Popup extends UIElement {
 
-  constructor(id: string, size: iSize) {
-    this.id = id
-    this.location = { left: 100, top: 100 }
-    this.path = PathBuilder.BuildRectangle(this.location, size, 30)
-    UI.clickables.push(this)
+  text: string
+  buffer: ImageData
+
+  constructor(id: string, geometry: iGeometry) {
+    super(id, geometry, 'white', true)
+    this.path = PathBuilder.BuildRectangle(
+      new PathGeometry({ left: 1, top: 1, width: 1, height: 1 }, 0)
+    )
   }
 
   show(msg: string) {
     this.text = msg
-    if (this.visible) {
-      this.restoreScreenFromBuffer()
-      this.visible = false
-    } else {
-      this.render()
-    }
+    this.buildPath()
+    this.visible = true
+    this.saveScreenToBuffer()
+    this.render()
+  }
+
+  hide() {
+    this.path = PathBuilder.BuildRectangle(
+      new PathGeometry({ left: 1, top: 1, width: 1, height: 1 }, 0)
+    )
+    this.restoreScreenFromBuffer()
+    this.visible = false
   }
 
   saveScreenToBuffer() {
@@ -38,19 +37,17 @@ class Popup implements UIElement {
   }
 
   buildPath() {
-
+    this.path = PathBuilder.BuildRectangle(
+      new PathGeometry(this.geometry, 30)
+    )
   }
 
-  onClick(broadcast: boolean, x: number, y: number) {
-    if (this.visible) {
-      this.restoreScreenFromBuffer()
-      this.visible = false
-      Events.fire('ResetGame', '')
-    }
+  touched(broadcast: boolean, x: number, y: number) {
+    this.hide()
+    Events.fire('ResetGame', '')
   }
 
   render() {
-    this.saveScreenToBuffer()
     surface.save()
     surface.shadowColor = '#404040'
     surface.shadowBlur = 45
@@ -64,9 +61,8 @@ class Popup implements UIElement {
     surface.lineWidth = 1
     surface.strokeStyle = 'black'
     surface.stroke(this.path)
-    surface.strokeText(this.text, this.location.left + 200, this.location.top + 200)
+    surface.strokeText(this.text, this.geometry.left + 200, this.geometry.top + 200)
     surface.restore()
     this.visible = true
   }
-
 }

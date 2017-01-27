@@ -1,63 +1,53 @@
 
-class Button implements UIElement {
-  id: string
-  enabled: boolean
-  visible: boolean = true
-  get text(): string {
-    return this.children[0].text
-  }
-  set text(newText: string) {
-    this.children[0].text = newText
-    this.render()
-  }
+class Button extends UIElement {
 
-  _backgroundColor: string = 'black'
-  get color(): string {
-    return this._backgroundColor
-  }
-  set color(color: string) {
-    this._backgroundColor = color
-    this.children[0].color = color
-    this.render()
-  }
-  location: iLocation
-  size: iSize
-  path: Path2D
-  children: UIElement[] = []
-  disabled: boolean = false
-
+  buttonText: Label
   firstPass: boolean // used for shadow control
   textLabel: Label
 
-  constructor(id: string, location: iLocation, size: iSize, enabled: boolean) {
+  constructor(id: string, geometry: iGeometry, enabled: boolean) {
+    super(id, geometry, 'black', enabled)
     this.id = id
-    this.enabled = enabled
-    this.children.push(new Label('0', 'Roll Dice', { left: location.left + 90, top: location.top + 40 }, { width: size.width - 25, height: 40 }, 'blue', UI.textColor, false))
-    this.location = location
-    this.size = size
+    this.enabled = true
+    this.visible = true
+    this.children.push(
+        new Label(
+            '0',
+            'Roll Dice',
+            {
+              left: geometry.left + 90,
+              top: geometry.top + 40,
+              width: geometry.width - 25,
+              height: 40
+            },
+            'blue',
+            UI.textColor,
+            false)
+        )
+    this.buttonText = this.children[0] as Label
     this.buildPath()
     this.firstPass = true
     this.render()
-    if (enabled) {
-      UI.clickables.push(this)
-    }
 
-    Events.on('RollUpdate', (data: { text: string, color: string, disabled: boolean }) => {
-      this.disabled = data.disabled
-      this._backgroundColor = data.color
-      this.children[0].color = data.color
-      this.text = data.text
+    Events.on('RollUpdate', (data: { text: string, color: string, enabled: boolean }) => {
+      this.enabled = data.enabled
+      this.color = data.color  //_background
+      this.buttonText.color = data.color
+      this.buttonText.text = data.text
+      this.render()
     })
 
   }
 
   buildPath() {
-    this.path = PathBuilder.BuildRectangle(this.location, this.size, 10)
+    this.path = PathBuilder.BuildRectangle(
+      new PathGeometry(this.geometry)
+    )
   }
 
-  onClick(broadcast: boolean, x: number, y: number) {
-    if (!this.disabled) {
-      if(broadcast) {
+  touched(broadcast: boolean, x: number, y: number) {
+    if (this.enabled) {
+      if (broadcast) {
         Events.fire('RollButtonClicked', {})
       }
     }
@@ -69,7 +59,7 @@ class Button implements UIElement {
       // turn shadow on
       surface.shadowColor = 'burlywood'
     }
-    surface.fillStyle = this._backgroundColor
+    surface.fillStyle = this.color
     surface.fill(this.path);
     surface.fillStyle = UI.textColor
     if (this.firstPass) {
@@ -79,5 +69,4 @@ class Button implements UIElement {
 
     this.children[0].render()
   }
-
 }

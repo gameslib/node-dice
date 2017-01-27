@@ -14,9 +14,9 @@ class ScoreComponent {
   hasFiveOfaKind: boolean
   baseColor: string = 'black'
 
-  constructor(id: number, name1: string, name2: string) {
+  constructor(id: number, name: string) {
     this.id = id
-    this.name = name1 + ' ' + name2
+    this.name = name
     this.finalValue = 0
     this.possibleValue = 0
     this.scoringDieset = [0, 0, 0, 0, 0]

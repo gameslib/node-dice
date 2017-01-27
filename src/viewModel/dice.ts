@@ -17,7 +17,7 @@ class Dice {
     this.die = new Array()
     for (var i = 0; i < 5; i++) {
       var x = 81 + (i * 90)
-      this.die.push(new Die('Die' + i, {left: x, top: 95 }, {width: this.dieSize, height: this.dieSize}, true))
+      this.die.push(new Die('Die' + i, {left: x, top: 95, width: this.dieSize, height: this.dieSize}, true))
     }
     this.resetTurn()
   }

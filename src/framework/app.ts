@@ -1,38 +1,47 @@
-/**
- * Application defines the set of Stores, Models, ViewModels, and Views,
- * that an application consists of. It automatically loads all of those dependencies
- * and can optionally specify a launch function that will be called when everything is ready.
+/*
+todo: Build a View-Factory object
+      View takes a Container (container is the Context2D to render to)
+      Build a static 'Binder' function that takes a View and a model and returns a ViewModel
+      Binding does not mutate the View or the Model
+      Use Naming convention to two-way bind the View and model (properties, attributes, state).
+      View-Factory to include Pathbuilder
+      Named-Paths to have default geometry
+      Custom Path object to contain Path2D, Colors, Geometry
 
-  application({
-    name: 'MyApp',
+      View-Base has State (Clickable, Enabled, Visible)
+      Hydrate and Bind from Custom HTML-elements ...
+          read the DOM elements,
+          hydrate-canvas-element with-css,
+          destroy-DOM-element, bind-with-Model
+      Path2D from SVG-tag?
 
-    models: ['User', 'Group'],
-    stores: ['Users'],
-    controllers: ['Users'],
-    views: ['Main', 'ShowUser'],
+  UI.Bind(View, Model) {
+    // if view is ViewModel, -> propertyChangedEvent(Host.PropertyName)
+    // if view is HTML -> TextContentChangedEvent(elementName)
+    // if view is POCO -> Events.fire(eventName)
+  }
 
-    launch: function() {
-        Ext.create('MyApp.view.Main');
-    }
-  })
+  MVVM ...  use convention over configuration
+  View = Bound to ViewModel ->
+      recieves propertyChangedEvents
+      monitors state controlled by ViewModel
+      fires commands to the ViewModel
+      Source of all behaiviors for the view (renders based on model/state changes)
 
+  ViewModel = Binds View and Model (no direct knowledge of the View)
+      Maintains a Views state, not its behaiviors
+      Subscribes to commands from View(click)
+      Manipulates Model data and commands model CRUD
+
+  Model = domain object, no behaiviors
+      Fires ModelChanged event to ViewModel
+      ViewModel  <- 'Reads', 'Updates -> data
+      May implement data services(CRUD) commanded by ViewModel
+
+      Implementation ...
+      var shell = Bootstrapper.CreateShell() // shell is ViewModel (top level VM = app)
+      viewModelBinder.Bind(shell, thisViewModel)
 */
-//todo: Build a View-Factory object
-//      View takes a Container (container is the Context2D to render to)
-//      Build a static 'Binder' function that takes a View and a model and returns a ViewModel
-//      Binding does not mutate the View or the Model
-//      Use Naming convention to two-way bind the View and model (properties, attributes, state).
-//      View-Base to include Pathbuilder
-//      Named-Paths to have default geometry
-//      Custom Path object to contain Path2D, Colors, Geometry
-//
-//      View-Base has State (Clickable, Enabled, Visible)
-//      Hydrate and Bind from Custom HTML-elements ...
-//          read the DOM elements,
-//          hydrate-canvas-element with-css,
-//          destroy-DOM-element, bind-with-Model
-//      Path2D from SVG-tag?
-
 const HOST = location.origin.replace(/^http/, 'ws')
 const socket: WebSocket = new WebSocket(HOST);
 var surface: CanvasRenderingContext2D
@@ -122,15 +131,16 @@ modules.load(
     'viewModel/possible',
     'viewModel/scoreComponent',
 
+    'view/UIElement',
     'view/popup',
     'view/button',
-    'view/customLabel.js',
     'view/die.js',
     'view/dieBuilder',
     'view/label',
     'view/pathBuilder',
-    'view/scoreElement',
+    'view/scoreButton',
     'view/ui',
+
     'framework/canvasVue',
     'framework/events',
     'framework/sounds',

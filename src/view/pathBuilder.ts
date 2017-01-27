@@ -1,12 +1,9 @@
 class PathBuilder {
 
-  static BuildRightScore(location: iLocation, size: iSize, radius: number) {
-    let left = location.left
-    let top = location.top
-    let right = left + size.width
-    let bottom = top + size.height
-    let halfWidth = left + (size.width * 0.3)
-    let halfHeight = top + (size.height * 0.5) + 3
+  static BuildRightScore(geometry: PathGeometry) {
+    const { left, right, top, bottom, width, height, radius } = geometry
+    let halfWidth = left + (width * 0.3)
+    let halfHeight = top + (height * 0.5) + 3
     let p = new Path2D()
     p.moveTo(halfWidth + radius, top);
     p.arcTo(right, top, right, top + radius, radius);
@@ -18,13 +15,10 @@ class PathBuilder {
     return p
   }
 
-  static BuildLeftScore(location: iLocation, size: iSize, radius: number) {
-    let left = location.left
-    let top = location.top
-    let right = left + size.width
-    let bottom = top + size.height
-    let halfWidth = left + (size.width * 0.7)
-    let halfHeight = top + (size.height * 0.5) - 3
+  static BuildLeftScore(geometry: PathGeometry) {
+    const { left, right, top, bottom, width, height, radius } = geometry
+    let halfWidth = left + (width * 0.7)
+    let halfHeight = top + (height * 0.5) - 3
     let p = new Path2D()
     p.moveTo(left + radius, top);
     p.arcTo(right, top, right, top + radius, radius);
@@ -36,11 +30,8 @@ class PathBuilder {
     return p
   }
 
-  static BuildRectangle(location: iLocation, size: iSize, radius: number): Path2D {
-    let left = location.left
-    let top = location.top
-    let right = left + size.width
-    let bottom = top + size.height
+  static BuildRectangle(geometry: PathGeometry): Path2D {
+    const { left, right, top, bottom, width, height, radius } = geometry
     let path = new Path2D
     if (radius < 7) {
       path.moveTo(left, top);
@@ -56,5 +47,26 @@ class PathBuilder {
       path.arcTo(left, top, left + radius, top, radius); // left
     }
     return path
+  }
+}
+
+class PathGeometry {
+  left: number
+  right: number
+  top: number
+  bottom: number
+  width: number
+  height: number
+  radius: number
+
+  constructor(geo: iGeometry, radius?: number) {
+    const { left, top, width, height} = geo
+    this.left = left
+    this.right = left + width
+    this.top = top
+    this.bottom = top + height
+    this.width = width
+    this.height = height
+    this.radius = radius || 10
   }
 }
