@@ -1,45 +1,52 @@
-class Die extends UIElement {
+class Die implements iView {
   static faces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
   static frozenFaces: [ImageData] = [new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1),new ImageData(1,1)]
-  value: number = 1
-  frozen: boolean
 
-  constructor(id: string, geometry: iGeometry, enabled: boolean) {
-    super(id, geometry, 'white', enabled)
-    this.value = 1
+  id: string
+  geometry: iGeometry
+  ctx: CanvasRenderingContext2D
+  path: Path2D
+  color: string
+  enabled: boolean
+  visible: boolean
+  children: iView[]
+  frozen: boolean
+  viewModel: DieVM
+
+  constructor(id: string, geometry: iGeometry, enabled: boolean, container: Container, viewModel: DieVM) {
+    this.id = id
+    this.viewModel = viewModel
+    this.enabled = enabled
+    this.geometry = geometry
+    this.ctx = container.ctx
+    this.color = 'transparent'
+    this.children = []
+    if (enabled) {this.register(container)}
     this.buildPath()
     this.render()
+    Events.on(this.id, () => this.render())
+  }
+
+  register(container: Container){
+    container.targetElements.push(this)
   }
 
   buildPath() {
-     this.path = PathBuilder.BuildRectangle(
-       new PathGeometry(this.geometry, 8)
+     this.path = Factories.BuildRectangle(
+       new PathGeometry(this.geometry, 10 )
     )
   }
 
   touched(broadcast: boolean, x: number, y: number) {
-    if (this.value > 0) {
-      this.frozen = !this.frozen
-      this.render()
-      app.sounds.play(app.sounds.select)
-      if (broadcast) {
-        App.socketSend('DieClicked', { 'dieNumber': this.id })
-      }
-    }
-  }
-
-  reset() {
-    this.frozen = false
-    this.value = 0
-    this.render()
+    this.viewModel.touched(broadcast, x, y)
   }
 
   render() {
-    if (this.frozen) {
-      surface.putImageData(Die.frozenFaces[this.value], this.geometry.left, this.geometry.top)
+    if (this.viewModel._frozen) {
+      this.ctx.putImageData(Die.frozenFaces[this.viewModel._value], this.geometry.left, this.geometry.top)
     }
     else {
-      surface.putImageData(Die.faces[this.value], this.geometry.left, this.geometry.top)
+      this.ctx.putImageData(Die.faces[this.viewModel._value], this.geometry.left, this.geometry.top)
     }
   }
 }

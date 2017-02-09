@@ -1,14 +1,33 @@
 
-class Popup extends UIElement {
-
+class Popup implements iView {
+  id: string
+  geometry: iGeometry
+  ctx: CanvasRenderingContext2D
+  path: Path2D
+  color: string
+  enabled: boolean
+  visible: boolean
+  children: iView[]
   text: string
   buffer: ImageData
+  viewModel: iViewModel
 
-  constructor(id: string, geometry: iGeometry) {
-    super(id, geometry, 'white', true)
-    this.path = PathBuilder.BuildRectangle(
+  constructor(id: string, geometry: iGeometry, container: Container, viewModel: iViewModel) {
+    this.viewModel = viewModel
+    this.id = id
+    this.enabled = true
+    this.geometry = geometry
+    this.ctx = container.ctx
+    this.color = 'white'
+    this.children = []
+    if (this.enabled) { this.register(container) }
+    this.path = Factories.BuildRectangle(
       new PathGeometry({ left: 1, top: 1, width: 1, height: 1 }, 0)
     )
+  }
+
+  register(container: Container) {
+    container.targetElements.push(this)
   }
 
   show(msg: string) {
@@ -20,7 +39,7 @@ class Popup extends UIElement {
   }
 
   hide() {
-    this.path = PathBuilder.BuildRectangle(
+    this.path = Factories.BuildRectangle(
       new PathGeometry({ left: 1, top: 1, width: 1, height: 1 }, 0)
     )
     this.restoreScreenFromBuffer()
@@ -28,16 +47,16 @@ class Popup extends UIElement {
   }
 
   saveScreenToBuffer() {
-    this.buffer = surface.getImageData(0, 0, surface.canvas.width, surface.canvas.height)
+    this.buffer = this.ctx.getImageData(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
   }
 
   restoreScreenFromBuffer() {
-    return surface.putImageData(this.buffer, 0, 0)
+    return this.ctx.putImageData(this.buffer, 0, 0)
 
   }
 
   buildPath() {
-    this.path = PathBuilder.BuildRectangle(
+    this.path = Factories.BuildRectangle(
       new PathGeometry(this.geometry, 30)
     )
   }
@@ -48,21 +67,22 @@ class Popup extends UIElement {
   }
 
   render() {
-    surface.save()
-    surface.shadowColor = '#404040'
-    surface.shadowBlur = 45
-    surface.shadowOffsetX = 5
-    surface.shadowOffsetY = 5
-    surface.fillStyle = 'snow'
-    surface.fill(this.path)
-    surface.shadowBlur = 0
-    surface.shadowOffsetX = 0
-    surface.shadowOffsetY = 0
-    surface.lineWidth = 1
-    surface.strokeStyle = 'black'
-    surface.stroke(this.path)
-    surface.strokeText(this.text, this.geometry.left + 200, this.geometry.top + 200)
-    surface.restore()
+    let ctx = this.ctx
+    ctx.save()
+    ctx.shadowColor = '#404040'
+    ctx.shadowBlur = 45
+    ctx.shadowOffsetX = 5
+    ctx.shadowOffsetY = 5
+    ctx.fillStyle = 'snow'
+    ctx.fill(this.path)
+    ctx.shadowBlur = 0
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = 0
+    ctx.lineWidth = 1
+    ctx.strokeStyle = 'black'
+    ctx.stroke(this.path)
+    ctx.strokeText(this.text, this.geometry.left + 200, this.geometry.top + 200)
+    ctx.restore()
     this.visible = true
   }
 }

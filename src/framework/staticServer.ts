@@ -1,11 +1,14 @@
+// node requirements
 const httpServer = require('http').createServer(httpHamdler).listen(83);
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
 const WebSocketServer = require('ws').Server
+
 // serves any file from the root down
 let socketServer = new WebSocketServer({ server: httpServer })
 
+// HTTP handler
 function httpHamdler(req: any, res: any) {
   // parse URL
   const parsedUrl = url.parse(req.url);
@@ -57,26 +60,27 @@ function httpHamdler(req: any, res: any) {
   });
 };
 
-var numberOfPlayers: number = 0
-var players: any = {}
+// Socket Server vars
+//var numberOfPlayers: number = 0
+var players: iPlayer[] = []
 var playerColors = ['#800000', '#008000', 'GoldenRod', 'RoyalBlue']
 var currentPlayerIndex: number = 0
 
+// creates a new 'client' closure on each new socket connection
 socketServer.on('connection', function (client: any) {
-  // we can use this connection 'client' to send messages to
-  // the client, or add specific listeners for the client
-  client.id = numberOfPlayers
+  // we can use this 'client' closure to send messages to
+  // the client, or to add specific listeners for the client
+  client.id = ''
 
+  // listen for messages from the client
   client.on('message', (message: any) => {
     var msg = JSON.parse(message);
     switch (msg.name) {
-      case 'LoggedIn': // data = {'id': id,'name': person}
-        numberOfPlayers = Object.keys(players).length
-        players[numberOfPlayers] = { id: msg.data.id, name: msg.data.name, color: playerColors[numberOfPlayers] }
-        console.log('Player name: ' + msg.data.name + '  id: ' + msg.data.id + '  color: ' + playerColors[numberOfPlayers] + ' signed in.    Number of players = ' + numberOfPlayers)
-        numberOfPlayers = Object.keys(players).length
+      case 'RegisterPlayer': // data = {'id': id,'name': person}
+        client.id = msg.data.id
+        players.push({ index: players.length, id: msg.data.id, name: msg.data.name, color: playerColors[players.length] })
         // sends this to every connected player including this new one
-        broadcastAll(client, 'SetPlayers', players)
+        broadcastAll(client, 'RegisterPlayers', players)
         broadcastAll(client, 'ResetGame', { currentPlayerIndex: 0 })
         break;
       case 'PlayerRolled': // data = {'id': App.thisID, 'dice': app.dice.die}
@@ -86,12 +90,12 @@ socketServer.on('connection', function (client: any) {
       case 'DieClicked': //  data = { 'dieNumber': index }
         broadcast(client, 'UpdateDie', msg.data)
         break;
-      case 'ScoreClicked': // data = { 'scoreNumber': elemIndex }
+      case 'ScoreClicked': // data = { 'id': senderID, 'scoreNumber': elemIndex }
         broadcast(client, 'UpdateScore', msg.data)
         break;
       case 'TurnOver': // data = { 'id': App.thisID }
         currentPlayerIndex += 1
-        if (currentPlayerIndex > numberOfPlayers - 1) {
+        if (currentPlayerIndex === players.length) {
           currentPlayerIndex = 0
         }
         msg.data.currentPlayerIndex = currentPlayerIndex
@@ -108,16 +112,28 @@ socketServer.on('connection', function (client: any) {
   })
 
   client.on('close', (message: any) => {
-    delete players[client.id]
-    numberOfPlayers = Object.keys(players).length
-    console.log('client  id: ' + client.id + ' closed.  Number of players = ' + numberOfPlayers)
-    broadcastAll(client, 'SetPlayers', players)
+    for (var i = 0; i < players.length; i++) {
+      var player = players[i];
+      if (players[i].id === client.id) {
+        players.splice(i, 1);
+      }
+    }
+    setTimeout(() => {
+      refreshPlayers()
+      broadcastAll(client, 'SetPlayers', players)
+    }, 30);
     setTimeout(() => {
       currentPlayerIndex = 0
       broadcastAll(client, 'ResetGame', { currentPlayerIndex: currentPlayerIndex })
-    }, 30);
+    }, 60);
   })
 })
+
+var refreshPlayers = function () {
+  for (var i = 0; i < players.length; i++) {
+    players[i].color = playerColors[i]
+  }
+}
 
 var broadcast = function (client: any, name: string, data: any) {
   for (var i in socketServer.clients) {
@@ -131,4 +147,10 @@ var broadcastAll = function (client: any, name: string, data: any) {
   for (var i in socketServer.clients) {
     socketServer.clients[i].send(JSON.stringify({ name: name, data: data }));
   }
+}
+interface iPlayer {
+  index: number
+  id: string
+  name: string
+  color: string
 }

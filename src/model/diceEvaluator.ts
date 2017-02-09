@@ -24,11 +24,14 @@ class DiceEvaluator {
   hasLargeStr: Boolean = false
   hasFullStr: Boolean = false
 
+  constructor(public dice: Dice) {
+  }
+
   evaluateDieValues() {
     this.countOfDieFaceValue = [0, 0, 0, 0, 0, 0, 0]
     this.sumOfAllDie = 0
     for (var i = 0; i < 5; i++) {
-      var val = App.dice.die[i].value
+      var val = this.dice.die[i].value
       this.sumOfAllDie += val
       if (val > 0) {
         this.countOfDieFaceValue[val] += 1
@@ -36,7 +39,7 @@ class DiceEvaluator {
     }
     this.evaluateFaceValues()
     this.setScoringFlags()
-    App.dice.isFiveOfaKind = this.testForFiveOfaKind()
+    this.dice.isFiveOfaKind = this.testForFiveOfaKind()
   }
 
   setScoringFlags() {
@@ -89,7 +92,7 @@ class DiceEvaluator {
 
   testForFiveOfaKind() {
     if (this.hasFiveOfaKind) {
-      if (App.dice.fiveOfaKindWasSacrificed) {
+      if (this.dice.fiveOfaKindWasSacrificed) {
         app.sounds.play(app.sounds.dohh)
       }
       else {
@@ -101,7 +104,7 @@ class DiceEvaluator {
   }
 
   evaluateFaceValues() {
-    var die = App.dice.die
+    var die = this.dice.die
     this.straightsMask = 0
     for (var thisValue = 1; thisValue <= 6; thisValue++) {
       if (die[0].value === thisValue ||

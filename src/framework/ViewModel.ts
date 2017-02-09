@@ -21,11 +21,11 @@ class ViewModel {
   private subscribers: subscription
   private scope: string
   private model: {}
-  private view: UIElement
+  private view: iView
 
 
   // creates a new ViewModel
-  constructor(model: any, view: UIElement, options: any) {
+  constructor(model: any, view: iView, options: any) {
     this.subscribers = {}
     this.scope = options.scope
     this.model = model

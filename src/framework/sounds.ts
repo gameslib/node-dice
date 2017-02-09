@@ -21,9 +21,7 @@ class Sounds {
 
   play(sound: HTMLAudioElement) {
     if (app.playSounds) {
-      sound.play()//.catch(function (e:any) {
-        //console.log('There was an error', e);
-      //});
+      sound.play()
     }
   }
 }

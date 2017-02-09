@@ -1,31 +1,22 @@
 
 class Dice {
   static evaluator: DiceEvaluator
-  static rollCount: number = 0
+  rollCount: number = 0
   dieSize = 82
-  die: Die[]
+  die: DieVM[] //Die[]
   isFiveOfaKind: boolean = false
   fiveOfaKindCount: number = 0
   fiveOfaKindBonusAllowed: boolean = false
   fiveOfaKindWasSacrificed: boolean = false
 
-
-  constructor() {
-    Dice.evaluator = new DiceEvaluator()
-    let dieFaceBuilder = new DieBuilder
-    dieFaceBuilder.buildDieFaces(80)
-    this.die = new Array()
-    for (var i = 0; i < 5; i++) {
-      var x = 81 + (i * 90)
-      this.die.push(new Die('Die' + i, {left: x, top: 95, width: this.dieSize, height: this.dieSize}, true))
-    }
-    this.resetTurn()
+  constructor(container: Container) {
+    Dice.evaluator = new DiceEvaluator(this)
+    this.die = []
   }
 
   unfreezeAll() {
     this.die.forEach(function (thisDie) {
       thisDie.frozen = false
-      thisDie.render()
     })
   }
 
@@ -33,7 +24,7 @@ class Dice {
     this.die.forEach(function (thisDie) {
       thisDie.reset()
     })
-    Dice.rollCount = 0
+    this.rollCount = 0
   }
 
   resetGame() {
@@ -44,21 +35,23 @@ class Dice {
     this.fiveOfaKindWasSacrificed = false
   }
 
-  roll(dice: Die[] = null) {
+  // if local 'roll', dice parameter will be null
+  // otherwise, dice parameter will be the values
+  // from another players roll
+  roll(die: DieVM[] = null) {
     this.die.forEach(function (thisDie, index) {
-      if (dice === null) {
+      if (die === null) {
         if (!thisDie.frozen) {
           thisDie.value = Math.floor(Math.random() * 6) + 1
         }
       } else {
-        thisDie.frozen = dice[index].frozen
+        thisDie.frozen = die[index].frozen
         if (!thisDie.frozen) {
-          thisDie.value = dice[index].value
+          thisDie.value = die[index]._value
         }
       }
-      thisDie.render()
     })
-    Dice.rollCount += 1
+    this.rollCount += 1
     Dice.evaluator.evaluateDieValues()
   }
 

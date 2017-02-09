@@ -1,29 +1,44 @@
 
-class Button extends UIElement {
+class Button implements iView {
 
+  id: string
+  geometry: iGeometry
+  ctx: CanvasRenderingContext2D
+  path: Path2D
+  color: string
+  enabled: boolean
+  visible: boolean
+  children: iView[] = []
   buttonText: Label
   firstPass: boolean // used for shadow control
   textLabel: Label
+  viewModel: iViewModel
 
-  constructor(id: string, geometry: iGeometry, enabled: boolean) {
-    super(id, geometry, 'black', enabled)
+  constructor(id: string, geometry: iGeometry, enabled: boolean, container: Container) {
+    this.geometry = geometry
+    this.ctx = container.ctx
+    this.viewModel = new ButtonVM()
+    this.color = 'black'
+    this.enabled = enabled
     this.id = id
     this.enabled = true
     this.visible = true
+    if (enabled) { this.register(container) }
     this.children.push(
-        new Label(
-            '0',
-            'Roll Dice',
-            {
-              left: geometry.left + 90,
-              top: geometry.top + 40,
-              width: geometry.width - 25,
-              height: 40
-            },
-            'blue',
-            UI.textColor,
-            false)
-        )
+      new Label(
+        '0',
+        'Roll Dice',
+        {
+          left: geometry.left + 90,
+          top: geometry.top + 40,
+          width: geometry.width - 25,
+          height: 40
+        },
+        'blue',
+        'snow',
+        false,
+        container)
+    )
     this.buttonText = this.children[0] as Label
     this.buildPath()
     this.firstPass = true
@@ -38,9 +53,12 @@ class Button extends UIElement {
     })
 
   }
+  register(container: Container) {
+    container.targetElements.push(this)
+  }
 
   buildPath() {
-    this.path = PathBuilder.BuildRectangle(
+    this.path = Factories.BuildRectangle(
       new PathGeometry(this.geometry)
     )
   }
@@ -57,16 +75,16 @@ class Button extends UIElement {
     //todo: save and restore the surface ... (ctx)
     if (this.firstPass) {
       // turn shadow on
-      surface.shadowColor = 'burlywood'
+      this.ctx.shadowColor = 'burlywood'
     }
-    surface.fillStyle = this.color
-    surface.fill(this.path);
-    surface.fillStyle = UI.textColor
+    this.ctx.fillStyle = this.color
+    this.ctx.fill(this.path);
+    this.ctx.fillStyle = 'snow'
     if (this.firstPass) {
       this.firstPass = false
-      surface.shadowColor = 'transparent'
+      this.ctx.shadowColor = 'transparent'
     }
 
-    this.children[0].render()
+    this.buttonText.render()
   }
 }

@@ -16,16 +16,18 @@ class Possible {
   static House: number = 10
   static FiveOfaKind: number = 11
   static Chance: number = 12
-
   private static instance: Possible;
+  dice: Dice
 
-  static getInstance() {
+  static getInstance(dice: Dice) {
     if (!Possible.instance) {
-      Possible.instance = new Possible();
+      Possible.instance = new Possible(dice);
     }
     return Possible.instance;
   }
-
+  private constructor(dice: Dice){
+    this.dice = dice
+  }
   evaluate(id: number) {
     if (id < 6) {
       return this.evaluateNumbers(id)
@@ -95,7 +97,7 @@ class Possible {
     var hits = 0
     var target = id + 1
     for (var i = 0; i < 5; i++) {
-      var val = (App.dice.die[i]).value
+      var val = (this.dice.die[i]).value
       if (val === target) {
         hits += 1
       }

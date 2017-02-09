@@ -1,4 +1,23 @@
+
 class Events {
+  static Type = {
+    GameOver:     'GameOver',     // socketSend-containerVM:79, Events.on-containerVM:85, Events.fire-containerVM:94
+    RegisterPlayer:     'RegisterPlayer',     // socketSend-containerVM:104
+    MouseDown:    'mousedown',    // keep lowercase canvas.addEventListener-container:27
+    PlayerRolled: 'PlayerRolled', // socketSend containerVM:115
+    ResetGame:    'ResetGame',    // socket.on.message containerVM:69, Events.on-containerVM:78
+    ResetTurn:    'ResetTurn',    // socket on-message-recieved type containerVM:59
+    RollButtonClicked: 'RollButtonClicked', // Events.on-containerVM:100
+    RollUpdate:   'RollUpdate',   // Events.fire-containerVM:143
+    TouchStart:   'touchstart',   // keep lowercase  canvas.addEventListener-container:31
+    TurnOver:     'TurnOver',     // Events.fire-scoreButton:87, Events.on-ContainerVM:92
+    UpdateScore:  'UpdateScore',  // socket-on-message-containerVM:56
+    UpdateDie:    'UpdateDie',    // socket-on-message-containerVM:53
+    UpdateRoll:   'UpdateRoll',   // socket-on-message-containerVM:50
+    RegisterPlayers:   'RegisterPlayers'    // socket-on-message-containerVM:47
+
+  }
+
   private static registeredtopics: {}
 
   /**
@@ -55,7 +74,8 @@ class Events {
         onlyOnce: once
       }) - 1
     // return an anonomous object with a 'remove' function
-    return { remove: function () {
+    return {
+      remove: function () {
         delete Events.registeredtopics[topic][index]
       }
     }
